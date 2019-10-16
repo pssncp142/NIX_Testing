@@ -43,89 +43,39 @@ class NIX_Base:
 
 class NIX_Spectra(NIX_Base):
     
-    def _singleLineFit(self, xx, yy, window=10):
+    def spectra1d(self, bright_line=None, mask=None, dark=None):
 
         from lmfit.models import GaussianModel, ConstantModel
-
-        model = GaussianModel()+ConstantModel()
-        pars = ConstantModel().make_params()
-        pars += GaussianModel().guess(yy, x=xx)
-        out = model.fit(yy, pars, x=xx)
-
-        return out
-
-    def _polFit(self, xx, yy, order=3):
-
-        from lmfit.models import PolynomialModel
-
-        model = PolynomialModel()
-        pars = model.make_params()
-        out = model.fit(yy, pars, x=xx)
-
-    def getSpectra1d(self, bright_line=None, mask=None, dark=None):
-
         window = 10
 
         if bright_line is not None:
             image = self.getImage(mask=mask, dark=dark)
+            model = GaussianModel()+ConstantModel()
             xys = bright_line['xys']
             centers = []
-            plt.figure(figsize=(4*2, 4))
+            plt.figure()
             for i in range(2):
-                yy = image[xys[i][1]-window:xys[i][1]+window, xys[i][0]]
+                crop = image[xys[i][1]-window:xys[i][1]+window, xys[i][0]]
                 xx = np.arange(xys[i][1]-window,xys[i][1]+window)
-                out = self._singleLineFit(xx, yy, window=window) 
-                centers.append(out.best_values['center'])
+                pars = ConstantModel().make_params()
+                pars += GaussianModel().guess(crop, x=xx)
+                out = model.fit(crop, pars, x=xx)
+
+                print out
+                centers.append(out['center'])
 
                 plt.subplot(1,2,i+1)
-                plt.plot(xx, yy, 'k')
+                plt.plot(xx, crop, 'k')
                 plt.plot(xx, out.best_fit, 'r')
 
             plt.show()
             
         X = np.arange(2048)
-        XX, YY = np.meshgrid(X, X)
+        XX, YY = np.mesghrid(X, X)
 
-        A = (centers[1]-centers[0])/(xys[1][0] - xys[0][0])
-        B = YY-A*XX
-        B = np.floor(B).astype(int)
+        A = (centers[1]-centers[0])/(xys[0][1] - xys[0][0])
 
-        spec1d = np.zeros(2048)
-
-        for i in range(2048):
-            for j in range(600, 1600):
-                spec1d[B[i,j]] += image[i,j]
-
-        plt.figure(figsize=(16, 4))
-
-        plt.plot(X, spec1d)
-        plt.show()
-
-        self.spectra1d = spec1d
-
-    def calibrate(self, ref_lines=None, mask=None, dark=None):
-        
-        window = 10
-
-        if ref_lines is not None:
-            image = self.getImage(mask=mask, dark=dark)
-            sz = len(ref_lines)
-            plt.figure(figsize=(4*sz, 4))
-            xs = [ref_line['x'] for ref_line in ref_lines]
-            waves = [ref_line['wave'] for ref_line in ref_lines]
-            for i in range(sz):
-                yy = self.spectra1d[xs[i]-window:xs[i]+window]
-                xx = np.arange(xs[i]-window,xs[i]+window)
-                out = self._singleLineFit(xx, yy, window=window) 
-                xs[i] = out.best_values['center']
-
-                plt.subplot(1,sz,i+1)
-                plt.plot(xx, yy, 'k')
-                plt.plot(xx, out.best_fit, 'r')
-
-            plt.show()
-        
-        self._polFit(xs, waves, order=order)
+        print A
 
     def extract(self, ref_lines, mask=None, dark=None):
         
