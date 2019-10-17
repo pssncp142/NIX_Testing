@@ -54,15 +54,44 @@ class NIX_Spectra(NIX_Base):
 
         return out
 
-    def _polFit(self, xx, yy, order=3):
+    def _polFit(self, xx, yy, order):
 
         from lmfit.models import PolynomialModel
 
-        model = PolynomialModel()
-        pars = model.make_params()
+        model = PolynomialModel(order)
+        pars = model.guess(yy, x=xx)
         out = model.fit(yy, pars, x=xx)
+        
+        return out
 
-    def getSpectra1d(self, bright_line=None, mask=None, dark=None):
+    def _continuumFit(self, order):
+
+        from lmfit.models import PolynomialModel
+        import pandas as pd
+
+        line_data = pd.read_csv('data/ThAr_lines.csv', header=None)
+        line_data = line_data.sort_values(4, ascending=False)
+        line_data = np.array(line_data[2])
+
+        self.spectraFiltered = self.spectra1d
+        self.waveFiltered = self.wave
+
+
+        for i in range(40):
+            ndx = np.where(np.abs(self.waveFiltered - line_data[i]) < 10)[0]
+            self.spectraFiltered = np.delete(self.spectraFiltered, ndx)
+            self.waveFiltered = np.delete(self.waveFiltered, ndx)
+            #plt.plot([line_data[i], line_data[i]], [0, 1.2e6], 'r--')
+
+        model = PolynomialModel(order)
+        pars = model.guess(self.spectraFiltered, x=self.waveFiltered)
+        out = model.fit(self.spectraFiltered, pars, x=self.waveFiltered)
+
+        print out.fit_report()
+
+        return out
+
+    def getOrderTracing(self, bright_line=None, mask=None, dark=None):
 
         window = 10
 
@@ -83,11 +112,19 @@ class NIX_Spectra(NIX_Base):
 
             plt.show()
             
+        self.A = (centers[1]-centers[0])/(xys[1][0] - xys[0][0])
+
+    def getSpectra1D(self, bright_line=None, mask=None, dark=None):
+
+        if not hasattr(self, 'A'):
+            self.getOrderTracing(bright_line=bright_line, mask=mask, dark=dark)
+
+        image = self.getImage(mask=mask, dark=dark)
+
         X = np.arange(2048)
         XX, YY = np.meshgrid(X, X)
 
-        A = (centers[1]-centers[0])/(xys[1][0] - xys[0][0])
-        B = YY-A*XX
+        B = YY-self.A*XX
         B = np.floor(B).astype(int)
 
         spec1d = np.zeros(2048)
@@ -103,7 +140,24 @@ class NIX_Spectra(NIX_Base):
 
         self.spectra1d = spec1d
 
-    def calibrate(self, ref_lines=None, mask=None, dark=None):
+    def subtractContinuum(self, order):
+
+        plt.figure(figsize=(16, 4))
+        out = self._continuumFit(order)
+
+        plt.plot(self.wave, self.spectra1d)
+        plt.plot(self.waveFiltered, self.spectraFiltered)
+        plt.plot(self.waveFiltered, out.best_fit)
+        plt.show()
+ 
+        plt.figure(figsize=(16, 4))
+        print out.best_values
+        print [out.best_values['c%d' % i] for i in range(order+1)]
+        sol = np.poly1d([out.best_values['c%d' % i] for i in range(order+1)[::-1]])
+        plt.plot(self.wave, self.spectra1d - sol(self.wave))
+        plt.show()
+
+    def calibrate(self, ref_lines=None, mask=None, dark=None, order=2):
         
         window = 10
 
@@ -125,7 +179,18 @@ class NIX_Spectra(NIX_Base):
 
             plt.show()
         
-        self._polFit(xs, waves, order=order)
+        out = self._polFit(xs, waves, order=order)
+
+        print out.fit_report()
+
+        xx = np.arange(2048)
+        
+        waveSol = np.poly1d(out.best_values.values())
+        self.wave = waveSol(xx)
+
+        plt.figure(figsize=(16, 4))
+        plt.plot(self.wave, self.spectra1d)
+        plt.show()
 
     def extract(self, ref_lines, mask=None, dark=None):
         
