@@ -54,6 +54,59 @@ class NIX_Spectra(NIX_Base):
 
         return out
 
+    def _multiLineFitFromTable(self, nlines=20):
+
+        import pandas as pd
+        from lmfit.models import GaussianModel, LorentzianModel
+
+        line_data = pd.read_csv('data/ThAr_lines.csv', header=None)
+        line_data = line_data.sort_values(4, ascending=False)
+        line_data = np.array(line_data[2])
+
+        line_data = line_data[np.where((line_data > 3090) & (line_data < 3900))[0]]
+
+        plt.figure(figsize=(16,4))
+
+        model_l = []
+
+        for i in range(nlines):
+
+            model = GaussianModel(prefix="l%02d_" % i)
+            model_l.append(model)
+
+            if i == 0:
+                pars = model.make_params()
+            else:
+                pars.update(model.make_params())
+
+            #print pars
+            plt.plot([line_data[i], line_data[i]], [0, 1e6], 'k--')
+
+            pars['l%02d_center' % i].set(value=line_data[i], 
+                min=(line_data[i]-1.), max=(line_data[i]+1.))
+            pars['l%02d_sigma' % i].set(value=1.4, max=2.5, min=1.)
+            pars['l%02d_amplitude' % i].set(value=1e6)
+
+        print "%20s %20s %20s" % ("Original(nm)", "Measured(nm)", "FWHM(nm)")
+        for i in range(nlines):
+            if i == 0:
+                mod = model_l[i]
+            else:
+                mod += model_l[i]
+ 
+        init = mod.eval(pars, x=self.wave)
+        out=mod.fit((self.spectra1d-self.continuum(self.wave)), pars, x=self.wave)
+
+        for i in range(nlines):
+            print "%20.2f %20.2f %20.5f" % (line_data[i], 
+                out.best_values["l%02d_center" % i], out.best_values["l%02d_sigma" % i]*2.35)
+
+
+        #print out.fit_report()
+        plt.plot(self.wave, out.best_fit)
+        plt.plot(self.wave, self.spectra1d - self.continuum(self.wave))
+        plt.show()
+
     def _polFit(self, xx, yy, order):
 
         from lmfit.models import PolynomialModel
