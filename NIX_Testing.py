@@ -5,7 +5,7 @@ import os
 from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
 
-class NIX_Image:
+class NIX_Base:
 
     full_path = ''
     f_name = ''
@@ -21,7 +21,7 @@ class NIX_Image:
         if test_id is not None:
             self.test_id = test_id
 
-    def getImage(self, hdu=None, mask=None):
+    def getImage(self, hdu=None, mask=None, dark=None):
 
         hdul = fits.open(self.full_path)
         image = hdul[0].data*1. 
@@ -29,9 +29,230 @@ class NIX_Image:
         if image.shape[0] == 1:
             image = image[0,:,:]
 
+        if dark is not None:
+            image = image - dark.getImage()
         if mask is not None:
             image = image * mask.getImage()
         return image
+
+    def plotImage(self, mask=None, dark=None):
+
+        plt.imshow(self.getImage(mask=mask, dark=dark))
+        plt.gca().invert_yaxis()
+        plt.show()
+
+class NIX_Spectra(NIX_Base):
+    
+    def _singleLineFit(self, xx, yy, window=10):
+
+        from lmfit.models import GaussianModel, ConstantModel
+
+        model = GaussianModel()+ConstantModel()
+        pars = ConstantModel().make_params()
+        pars += GaussianModel().guess(yy, x=xx)
+        out = model.fit(yy, pars, x=xx)
+
+        return out
+
+    def _multiLineFitFromTable(self, nlines=20):
+
+        import pandas as pd
+        from lmfit.models import GaussianModel, LorentzianModel
+
+        line_data = pd.read_csv('data/ThAr_lines.csv', header=None)
+        line_data = line_data.sort_values(4, ascending=False)
+        line_data = np.array(line_data[2])
+
+        line_data = line_data[np.where((line_data > 3090) & (line_data < 3900))[0]]
+
+        plt.figure(figsize=(16,4))
+
+        model_l = []
+
+        for i in range(nlines):
+
+            model = GaussianModel(prefix="l%02d_" % i)
+            model_l.append(model)
+
+            if i == 0:
+                pars = model.make_params()
+            else:
+                pars.update(model.make_params())
+
+            #print pars
+            plt.plot([line_data[i], line_data[i]], [0, 1e6], 'k--')
+
+            pars['l%02d_center' % i].set(value=line_data[i], 
+                min=(line_data[i]-1.), max=(line_data[i]+1.))
+            pars['l%02d_sigma' % i].set(value=1.4, max=2.5, min=1.)
+            pars['l%02d_amplitude' % i].set(value=1e6)
+
+        print "%20s %20s %20s" % ("Original(nm)", "Measured(nm)", "FWHM(nm)")
+        for i in range(nlines):
+            if i == 0:
+                mod = model_l[i]
+            else:
+                mod += model_l[i]
+ 
+        init = mod.eval(pars, x=self.wave)
+        out=mod.fit((self.spectra1d-self.continuum(self.wave)), pars, x=self.wave)
+
+        for i in range(nlines):
+            print "%20.2f %20.2f %20.5f" % (line_data[i], 
+                out.best_values["l%02d_center" % i], out.best_values["l%02d_sigma" % i]*2.35)
+
+
+        #print out.fit_report()
+        plt.plot(self.wave, out.best_fit)
+        plt.plot(self.wave, self.spectra1d - self.continuum(self.wave))
+        plt.show()
+
+    def _polFit(self, xx, yy, order):
+
+        from lmfit.models import PolynomialModel
+
+        model = PolynomialModel(order)
+        pars = model.guess(yy, x=xx)
+        out = model.fit(yy, pars, x=xx)
+        
+        return out
+
+    def _continuumFit(self, method='polynomial', order=5, smooth=6):
+
+        import pandas as pd
+
+        line_data = pd.read_csv('data/ThAr_lines.csv', header=None)
+        line_data = line_data.sort_values(4, ascending=False)
+        line_data = np.array(line_data[2])
+
+        self.spectraFiltered = self.spectra1d
+        self.waveFiltered = self.wave
+
+        for i in range(50):
+            ndx = np.where(np.abs(self.waveFiltered - line_data[i]) < 5)[0]
+            self.spectraFiltered = np.delete(self.spectraFiltered, ndx)
+            self.waveFiltered = np.delete(self.waveFiltered, ndx)
+            #plt.plot([line_data[i], line_data[i]], [0, 1.2e6], 'r--')
+
+        if method == "polynomial":
+            from lmfit.models import PolynomialModel
+            model = PolynomialModel(order)
+            pars = model.guess(self.spectraFiltered, x=self.waveFiltered)
+            out = model.fit(self.spectraFiltered, pars, x=self.waveFiltered)
+            self.continuum = np.poly1d([out.best_values['c%d' % i] for i in range(order+1)[::-1]])
+        elif method == "spline":
+            from scipy.interpolate import UnivariateSpline
+            self.continuum = UnivariateSpline(self.waveFiltered, self.spectraFiltered, 
+                w=1/self.spectraFiltered, k=order, s=smooth)
+
+    def getOrderTracing(self, bright_line=None, mask=None, dark=None):
+
+        window = 10
+
+        if bright_line is not None:
+            image = self.getImage(mask=mask, dark=dark)
+            xys = bright_line['xys']
+            centers = []
+            plt.figure(figsize=(4*2, 4))
+            for i in range(2):
+                yy = image[xys[i][1]-window:xys[i][1]+window, xys[i][0]]
+                xx = np.arange(xys[i][1]-window,xys[i][1]+window)
+                out = self._singleLineFit(xx, yy, window=window) 
+                centers.append(out.best_values['center'])
+
+                plt.subplot(1,2,i+1)
+                plt.plot(xx, yy, 'k')
+                plt.plot(xx, out.best_fit, 'r')
+
+            plt.show()
+            
+        self.A = (centers[1]-centers[0])/(xys[1][0] - xys[0][0])
+
+    def getSpectra1D(self, bright_line=None, mask=None, dark=None):
+
+        if not hasattr(self, 'A'):
+            self.getOrderTracing(bright_line=bright_line, mask=mask, dark=dark)
+
+        image = self.getImage(mask=mask, dark=dark)
+
+        X = np.arange(2048)
+        XX, YY = np.meshgrid(X, X)
+
+        B = YY-self.A*XX
+        B = np.floor(B).astype(int)
+
+        spec1d = np.zeros(2048)
+
+        for i in range(2048):
+            for j in range(600, 1600):
+                spec1d[B[i,j]] += image[i,j]
+
+        plt.figure(figsize=(16, 4))
+
+        plt.plot(X, spec1d)
+        plt.show()
+
+        self.spectra1d = spec1d
+
+    def subtractContinuum(self, method='polynomial', order=5, smooth=6):
+
+        plt.figure(figsize=(16, 4))
+        out = self._continuumFit(method=method, order=order, smooth=smooth)
+
+        plt.title('Continuum Model')
+        plt.plot(self.wave, self.spectra1d)
+        plt.plot(self.wave, self.continuum(self.wave))
+        plt.show()
+ 
+        plt.figure(figsize=(16, 4))
+        plt.title('Continuum Subtracted')
+        plt.plot(self.wave, self.spectra1d - self.continuum(self.wave))
+        plt.show()
+
+    def calibrate(self, ref_lines=None, mask=None, dark=None, order=2):
+        
+        window = 10
+
+        if ref_lines is not None:
+            image = self.getImage(mask=mask, dark=dark)
+            sz = len(ref_lines)
+            plt.figure(figsize=(4*sz, 4))
+            xs = [ref_line['x'] for ref_line in ref_lines]
+            waves = [ref_line['wave'] for ref_line in ref_lines]
+            for i in range(sz):
+                yy = self.spectra1d[xs[i]-window:xs[i]+window]
+                xx = np.arange(xs[i]-window,xs[i]+window)
+                out = self._singleLineFit(xx, yy, window=window) 
+                xs[i] = out.best_values['center']
+
+                plt.subplot(1,sz,i+1)
+                plt.plot(xx, yy, 'k')
+                plt.plot(xx, out.best_fit, 'r')
+
+            plt.show()
+        
+        out = self._polFit(xs, waves, order=order)
+
+        print out.fit_report()
+
+        xx = np.arange(2048)
+        
+        waveSol = np.poly1d(out.best_values.values())
+        self.wave = waveSol(xx)
+
+        plt.figure(figsize=(16, 4))
+        plt.plot(self.wave, self.spectra1d)
+        plt.show()
+
+    def extract(self, ref_lines, mask=None, dark=None):
+        
+        spectra2d = self.getImage(mask=mask, dark=dark)
+        self.plotImage(mask=mask, dark=dark)
+
+
+
+
+class NIX_Image(NIX_Base):
 
     def getMedian(self, mask=None):
 
@@ -53,15 +274,7 @@ class NIX_Image:
             for object in self.objects:
                 if ((object['x'] - search['x'])**2 + (object['y'] - search['y'])**2 < search['r']**2):
                     return object
-
-
-    def plotImage(self, mask=None):
-
-        plt.imshow(self.getImage(mask=mask))
-        plt.gca().invert_yaxis()
-        plt.show()
-
-        
+      
     def plotObjects(self, mask=None):
 
         fig, ax = plt.subplots()

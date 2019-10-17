@@ -1,0 +1,4 @@
+/home/ydallilar/.miniconda2/lib/python2.7/site-packages/NIX_Testing.py
+/home/ydallilar/.miniconda2/lib/python2.7/site-packages/NIX_Testing.pyc
+/home/ydallilar/.miniconda2/bin/get_header_info.py
+/home/ydallilar/.miniconda2/lib/python2.7/site-packages/NIX_Testing-0.1.0-py2.7.egg-info
