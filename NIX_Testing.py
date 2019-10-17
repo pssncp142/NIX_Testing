@@ -64,7 +64,7 @@ class NIX_Spectra(NIX_Base):
         
         return out
 
-    def _continuumFit(self, method='polynomial', order=5):
+    def _continuumFit(self, method='polynomial', order=5, smooth=6):
 
         import pandas as pd
 
@@ -90,7 +90,7 @@ class NIX_Spectra(NIX_Base):
         elif method == "spline":
             from scipy.interpolate import UnivariateSpline
             self.continuum = UnivariateSpline(self.waveFiltered, self.spectraFiltered, 
-                w=1/self.spectraFiltered, k=order, s=6)
+                w=1/self.spectraFiltered, k=order, s=smooth)
 
     def getOrderTracing(self, bright_line=None, mask=None, dark=None):
 
@@ -141,10 +141,10 @@ class NIX_Spectra(NIX_Base):
 
         self.spectra1d = spec1d
 
-    def subtractContinuum(self, method='polynomial', order=5):
+    def subtractContinuum(self, method='polynomial', order=5, smooth=6):
 
         plt.figure(figsize=(16, 4))
-        out = self._continuumFit(method=method, order=order)
+        out = self._continuumFit(method=method, order=order, smooth=smooth)
 
         plt.title('Continuum Model')
         plt.plot(self.wave, self.spectra1d)
