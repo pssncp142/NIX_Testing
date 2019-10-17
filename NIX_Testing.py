@@ -64,9 +64,8 @@ class NIX_Spectra(NIX_Base):
         
         return out
 
-    def _continuumFit(self, order):
+    def _continuumFit(self, method='polynomial', order=5):
 
-        from lmfit.models import PolynomialModel
         import pandas as pd
 
         line_data = pd.read_csv('data/ThAr_lines.csv', header=None)
@@ -76,20 +75,22 @@ class NIX_Spectra(NIX_Base):
         self.spectraFiltered = self.spectra1d
         self.waveFiltered = self.wave
 
-
-        for i in range(40):
-            ndx = np.where(np.abs(self.waveFiltered - line_data[i]) < 10)[0]
+        for i in range(50):
+            ndx = np.where(np.abs(self.waveFiltered - line_data[i]) < 5)[0]
             self.spectraFiltered = np.delete(self.spectraFiltered, ndx)
             self.waveFiltered = np.delete(self.waveFiltered, ndx)
             #plt.plot([line_data[i], line_data[i]], [0, 1.2e6], 'r--')
 
-        model = PolynomialModel(order)
-        pars = model.guess(self.spectraFiltered, x=self.waveFiltered)
-        out = model.fit(self.spectraFiltered, pars, x=self.waveFiltered)
-
-        print out.fit_report()
-
-        return out
+        if method == "polynomial":
+            from lmfit.models import PolynomialModel
+            model = PolynomialModel(order)
+            pars = model.guess(self.spectraFiltered, x=self.waveFiltered)
+            out = model.fit(self.spectraFiltered, pars, x=self.waveFiltered)
+            self.continuum = np.poly1d([out.best_values['c%d' % i] for i in range(order+1)[::-1]])
+        elif method == "spline":
+            from scipy.interpolate import UnivariateSpline
+            self.continuum = UnivariateSpline(self.waveFiltered, self.spectraFiltered, 
+                w=1/self.spectraFiltered, k=order, s=6)
 
     def getOrderTracing(self, bright_line=None, mask=None, dark=None):
 
@@ -140,21 +141,19 @@ class NIX_Spectra(NIX_Base):
 
         self.spectra1d = spec1d
 
-    def subtractContinuum(self, order):
+    def subtractContinuum(self, method='polynomial', order=5):
 
         plt.figure(figsize=(16, 4))
-        out = self._continuumFit(order)
+        out = self._continuumFit(method=method, order=order)
 
+        plt.title('Continuum Model')
         plt.plot(self.wave, self.spectra1d)
-        plt.plot(self.waveFiltered, self.spectraFiltered)
-        plt.plot(self.waveFiltered, out.best_fit)
+        plt.plot(self.wave, self.continuum(self.wave))
         plt.show()
  
         plt.figure(figsize=(16, 4))
-        print out.best_values
-        print [out.best_values['c%d' % i] for i in range(order+1)]
-        sol = np.poly1d([out.best_values['c%d' % i] for i in range(order+1)[::-1]])
-        plt.plot(self.wave, self.spectra1d - sol(self.wave))
+        plt.title('Continuum Subtracted')
+        plt.plot(self.wave, self.spectra1d - self.continuum(self.wave))
         plt.show()
 
     def calibrate(self, ref_lines=None, mask=None, dark=None, order=2):
