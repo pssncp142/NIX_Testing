@@ -21,7 +21,7 @@ class NIX_Base:
         if test_id is not None:
             self.test_id = test_id
 
-    def getImage(self, hdu=None, mask=None, dark=None):
+    def getImage(self, hdu=None, mask=None, dark=None, linearize=None):
 
         hdul = fits.open(self.full_path)
         image = hdul[0].data*1. 
@@ -31,6 +31,8 @@ class NIX_Base:
 
         if dark is not None:
             image = image - dark.getImage()
+        if linearize is not None:
+            image = linearize(image)
         if mask is not None:
             image = image * mask.getImage()
         return image
@@ -387,6 +389,21 @@ class NIX_Image_List:
 
         return [NI.getMedian(mask=mask) for NI in self.Filtered]
 
+    def getPixelVariance(self, mask=None, shift=True):
+
+        sz = len(self.Filtered)
+        data = np.zeros([2048, 2048, sz])
+        diff = np.zeros([2048, 2048, sz])
+
+        for i in range(sz):
+            data[:,:,i] = self.Filtered[i].getImage(mask=None)
+            diff[:,:,i] = data[:,:,i] - data[:,:,0]
+            diff[:,:,i] = np.median(diff[:,:,i])
+
+        data -= diff
+
+        return np.var(data, axis=2, ddof=1)
+
     def getObjects(self, mask=None, search=None, sepdict=None):
         
         if sepdict is not None:
@@ -409,6 +426,19 @@ def strip_prefix_from_keyword(keyword):
     return keyword
 
 
+def doGridAnalysis(data, grid, window, start, func, factor=1., index=None):
+
+    sz = data.shape[2]
+    result = np.zeros([grid*grid*sz])
+
+    for k in range(sz):
+        ndx = index if index is not None else k
+        for i in range(grid):
+            for j in range(grid):
+                result[i*grid*sz+j*sz+k] = func(data[start+window*i:start+window*(i+1),
+                            start+window*j:start+window*(j+1), ndx])
+
+    return result*factor
 
 
 
