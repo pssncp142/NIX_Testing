@@ -256,10 +256,10 @@ class NIX_Spectra(NIX_Base):
 
 class NIX_Image(NIX_Base):
 
-    def getMedian(self, mask=None):
+    def getMedian(self, dark=None, mask=None):
 
         if not hasattr(self, 'median'):
-            image = self.getImage(mask=mask)
+            image = self.getImage(mask=mask, dark=dark)
             self.median = np.median(image)
         return self.median
 
@@ -385,9 +385,9 @@ class NIX_Image_List:
         
         return im
 
-    def getMedian(self, mask=None):
+    def getMedian(self, mask=None, dark=None):
 
-        return [NI.getMedian(mask=mask) for NI in self.Filtered]
+        return [NI.getMedian(mask=mask, dark=dark) for NI in self.Filtered]
 
     def getPixelVariance(self, mask=None, shift=True):
 
@@ -400,7 +400,8 @@ class NIX_Image_List:
             diff[:,:,i] = data[:,:,i] - data[:,:,0]
             diff[:,:,i] = np.median(diff[:,:,i])
 
-        data -= diff
+        if shift:
+            data -= diff
 
         return np.var(data, axis=2, ddof=1)
 
@@ -413,7 +414,7 @@ class NIX_Image_List:
 
     def getHeaderValue(self, keyword):
 
-        return [NI.header['MJD-OBS'] for NI in self.Filtered]
+        return [NI.header[keyword] for NI in self.Filtered]
 
 # Some utility functions
 
