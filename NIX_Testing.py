@@ -5,11 +5,9 @@ import os
 from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
 
-class NIX_Base:
+class NIX_Base(object):
 
-    full_path = ''
-    f_name = ''
-    header = ''
+    __slots__ = ('full_path', 'f_name', 'header', 'test_id')
 
     def __init__(self, path, test_id=None, verbose=False):
 
@@ -17,7 +15,7 @@ class NIX_Base:
             print "Loading file ", path.split('/')[-1]
         self.f_name = path.split('/')[-1]
         self.full_path = path
-        self.header = fits.getheader(path)
+        #self.header = fits.getheader(path)
         if test_id is not None:
             self.test_id = test_id
 
@@ -25,6 +23,7 @@ class NIX_Base:
 
         hdul = fits.open(self.full_path)
         image = hdul[0].data*1. 
+        hdul.close()
         # Handle exception where data format is (1, 2048, 2048)
         if image.shape[0] == 1:
             image = image[0,:,:]
@@ -335,8 +334,9 @@ class NIX_Image_List:
         
         ctr = 0 
         for File in self.NIX_Files:
+            header = fits.getheader(File.full_path)
             out_list = [ctr, File.test_id, File.f_name]
-            out_list.extend([File.header[keyword] for keyword in keywords])
+            out_list.extend([header[keyword] for keyword in keywords])
             print ('%04d' + tbl_fmt) % tuple(out_list) 
             ctr += 1
 
@@ -348,8 +348,9 @@ class NIX_Image_List:
         
         ctr = 0 
         for File in self.Filtered:
+            header = fits.getheader(File.full_path)
             out_list = [ctr, File.test_id, File.f_name]
-            out_list.extend([File.header[keyword] for keyword in keywords])
+            out_list.extend([header[keyword] for keyword in keywords])
             print ('%04d' + tbl_fmt) % tuple(out_list) 
             ctr += 1
 
@@ -401,9 +402,9 @@ class NIX_Image_List:
             diff[:,:,i] = np.median(diff[:,:,i])
 
         if shift:
-            data -= diff
+            data[:,:,:] -= diff
 
-        return np.var(data, axis=2, ddof=1)
+        return np.var(data, axis=2, ddof=1), diff[0,0,:]
 
     def getObjects(self, mask=None, search=None, sepdict=None):
         
@@ -414,7 +415,7 @@ class NIX_Image_List:
 
     def getHeaderValue(self, keyword):
 
-        return [NI.header[keyword] for NI in self.Filtered]
+        return [fits.getheader(NI.full_path)[keyword] for NI in self.Filtered]
 
 # Some utility functions
 
