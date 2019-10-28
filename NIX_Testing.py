@@ -19,7 +19,7 @@ class NIX_Base(object):
         if test_id is not None:
             self.test_id = test_id
 
-    def getImage(self, hdu=None, mask=None, dark=None, linearize=None):
+    def getImage(self, hdu=None, mask=None, dark=None, linearize=None, gain=None):
 
         hdul = fits.open(self.full_path)
         image = hdul[0].data*1. 
@@ -34,6 +34,8 @@ class NIX_Base(object):
             image = linearize(image)
         if mask is not None:
             image = image * mask.getImage()
+        if gain is not None:
+            image *= gain
         return image
 
     def plotImage(self, mask=None, dark=None):
@@ -390,14 +392,14 @@ class NIX_Image_List:
 
         return [NI.getMedian(mask=mask, dark=dark) for NI in self.Filtered]
 
-    def getPixelVariance(self, mask=None, shift=True):
+    def getPixelVariance(self, mask=None, shift=True, gain=None):
 
         sz = len(self.Filtered)
         data = np.zeros([2048, 2048, sz])
         diff = np.zeros([2048, 2048, sz])
 
         for i in range(sz):
-            data[:,:,i] = self.Filtered[i].getImage(mask=None)
+            data[:,:,i] = self.Filtered[i].getImage(mask=None, gain=gain)
             diff[:,:,i] = data[:,:,i] - data[:,:,0]
             diff[:,:,i] = np.median(diff[:,:,i])
 
