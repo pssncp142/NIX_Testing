@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import time
 from IPython.display import clear_output
 from scipy.stats import linregress
+import multiprocessing as mp
 
 class NIX_Base(object):
 
@@ -391,14 +392,44 @@ class NIX_Image_List:
         
         return im
 
-    def doLinearRegress(self, exps):
+    def doLinearRegress(self, exps, select, cpu=1, dark=None, mask=None):
 
-        
+        sz = exps.shape[0]
 
+        exps = np.tile(exps, 2048*2048)
+        exps = exps.reshape([2048, 2048, sz])
+
+        ims = self.getImage(select=select, mask=mask, dark=dark)
+
+        angs, lins, Rs = self._multiLinearRegress(exps, ims, cpu=cpu)
+
+        return angs, lins, Rs
 
     def getMedian(self, mask=None, dark=None):
 
         return [NI.getMedian(mask=mask, dark=dark) for NI in self.Filtered]
+
+    def getImage(self, select=None, mask=None, dark=None):
+
+        if select is not None:
+            sz = select.shape[0]
+        else:
+            sz = len(self.Filtered)
+        ims = np.zeros([2048, 2048, sz])
+
+        if dark is None:
+            darks = [None]*sz
+        else:
+            darks = [self.Filtered[i] for i in range(sz)]
+
+        if select is not None:
+            for i in range(sz):
+                ims[:,:,i] = self.Filtered[select[i]].getImage(mask=mask, dark=darks[i])
+        else:
+            for i in range(sz):
+                ims[:,:,i] = self.Filtered[i].getImage(mask=mask, dark=darks[i])
+
+        return ims
 
     def getPixelVariance(self, mask=None, shift=True, gain=None):
 
@@ -429,29 +460,24 @@ class NIX_Image_List:
 
     def _multiLinearRegress(self, data1, data2, cpu=1):
 
-        pb = ProgressBar()
-        angs = zeros([2048, 2048])
-        lins = zeros([2048, 2048])
-        Rs = zeros([2048, 2048])
+        pb = ProgressBar(function="_multiLinearRegress")
+        angs = np.zeros([2048, 2048])
+        lins = np.zeros([2048, 2048])
+        Rs = np.zeros([2048, 2048])
         pool = mp.Pool(cpu)
         for i in range(2048):
-            arr1s = [data1[i,j] for j in range(2048)]
-            arr2s = [data2[i,j] for j in range(2048)]
-            out = pool.map(do_linregress, zip(arr1s, arr2s))
+            arr1s = [data1[i,j,:] for j in range(2048)]
+            arr2s = [data2[i,j,:] for j in range(2048)]
+            out = pool.map(_singleLinearRegress, zip(arr1s, arr2s))
             for j in range(2048):
                 angs[i,j], lins[i,j], Rs[i,j] = out[j][0], out[j][1], out[j][2]
             
-        pb.report(i+1, 2048)
-    return angs, lins, Rs
+            pb.report(i+1, 2048)
 
-    def _singleLinearRegress(self, args):
+        return angs, lins, Rs
 
-        arr1, arr2 = args
-        ang, lin, R, _, _ = linregress(arr1, arr2)
-        return ang, lin, R
 
 # Some utility functions
-
 def strip_prefix_from_keyword(keyword):
 
     if keyword.startswith('HIERARCH ESO'):
@@ -475,13 +501,23 @@ def doGridAnalysis(data, grid, window, start, func, factor=1., index=None):
 
     return result*factor
 
+def _singleLinearRegress(args):
+
+    arr1, arr2 = args
+    ang, lin, R, _, _ = linregress(arr1, arr2)
+    return ang, lin, R
+
 
 class ProgressBar:
 
-    __slots__ = ("t_start")
+    __slots__ = ("t_start", "function")
 
-    def __init__(self):
+    def __init__(self, function=None):
         self.t_start = time.time()
+        if function is not None:
+            self.function = function
+        else:
+            self.function = ""
 
     def init(self):
         self.__init__()
@@ -494,7 +530,7 @@ class ProgressBar:
         t_full = t_elapsed/progress*100
 
         clear_output(wait=True)
-        print "[%s%s] %3d%% %s/%s" % ("#"*bar_done, '-'*(20-bar_done), progress,
+        print "%s ==> [%s%s] %3d%% %s/%s" % (self.function, "#"*bar_done, '-'*(20-bar_done), progress,
             self._formatTime(t_elapsed), self._formatTime(t_full))
 
     def _formatTime(self, t):
