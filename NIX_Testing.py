@@ -4,6 +4,9 @@ import sep
 import os
 from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
+import time
+from IPython.display import clear_output
+from scipy.stats import linregress
 
 class NIX_Base(object):
 
@@ -388,6 +391,11 @@ class NIX_Image_List:
         
         return im
 
+    def doLinearRegress(self, exps):
+
+        
+
+
     def getMedian(self, mask=None, dark=None):
 
         return [NI.getMedian(mask=mask, dark=dark) for NI in self.Filtered]
@@ -419,6 +427,29 @@ class NIX_Image_List:
 
         return [fits.getheader(NI.full_path)[keyword] for NI in self.Filtered]
 
+    def _multiLinearRegress(self, data1, data2, cpu=1):
+
+        pb = ProgressBar()
+        angs = zeros([2048, 2048])
+        lins = zeros([2048, 2048])
+        Rs = zeros([2048, 2048])
+        pool = mp.Pool(cpu)
+        for i in range(2048):
+            arr1s = [data1[i,j] for j in range(2048)]
+            arr2s = [data2[i,j] for j in range(2048)]
+            out = pool.map(do_linregress, zip(arr1s, arr2s))
+            for j in range(2048):
+                angs[i,j], lins[i,j], Rs[i,j] = out[j][0], out[j][1], out[j][2]
+            
+        pb.report(i+1, 2048)
+    return angs, lins, Rs
+
+    def _singleLinearRegress(self, args):
+
+        arr1, arr2 = args
+        ang, lin, R, _, _ = linregress(arr1, arr2)
+        return ang, lin, R
+
 # Some utility functions
 
 def strip_prefix_from_keyword(keyword):
@@ -444,5 +475,33 @@ def doGridAnalysis(data, grid, window, start, func, factor=1., index=None):
 
     return result*factor
 
+
+class ProgressBar:
+
+    __slots__ = ("t_start")
+
+    def __init__(self):
+        self.t_start = time.time()
+
+    def init(self):
+        self.__init__()
+
+    def report(self, current, full):
+        progress = float(current)/full*100
+        bar_done = int(round(progress/5.))
+        t_now = time.time()
+        t_elapsed = t_now-self.t_start
+        t_full = t_elapsed/progress*100
+
+        clear_output(wait=True)
+        print "[%s%s] %3d%% %s/%s" % ("#"*bar_done, '-'*(20-bar_done), progress,
+            self._formatTime(t_elapsed), self._formatTime(t_full))
+
+    def _formatTime(self, t):
+
+        mins = t / 60.
+        secs = t % 60
+
+        return "%02d:%02d" % (mins, secs)
 
 
