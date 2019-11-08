@@ -22,6 +22,8 @@ class NIX_Base(object):
         #self.header = fits.getheader(path)
         if test_id is not None:
             self.test_id = test_id
+        else:
+            self.test_id = None
 
     def getImage(self, hdu=None, mask=None, dark=None, linearize=None, gain=None):
 
@@ -323,14 +325,28 @@ class NIX_Image_List:
 
     def loadFiles(self):
 
-        for test_id in self.config['test_ids']:
-            full_path = self.config['data_dir'] + '/'+ ('%s-%s' % tuple(test_id.split('-')[:2])) + '/' + test_id + '/'
+        if 'test_ids' in self.config:
+
+            for test_id in self.config['test_ids']:
+                full_path = self.config['data_dir'] + '/'+ ('%s-%s' % tuple(test_id.split('-')[:2])) + '/' + test_id + '/'
+                files = os.listdir(full_path)
+                files.sort()
+    
+                for f_name in files:
+                    if f_name.endswith('fits'):
+                        self.NIX_Files.append(NIX_Image(full_path + f_name, test_id=test_id))
+
+        else:
+
+            full_path = self.config['data_dir'] + '/'
             files = os.listdir(full_path)
             files.sort()
     
             for f_name in files:
                 if f_name.endswith('fits'):
-                    self.NIX_Files.append(NIX_Image(full_path + f_name, test_id=test_id))
+                    self.NIX_Files.append(NIX_Image(full_path + f_name))
+
+
 
     def printTable(self, keywords, tbl_fmt):
 
@@ -342,8 +358,12 @@ class NIX_Image_List:
         for File in self.NIX_Files:
             header = fits.getheader(File.full_path)
             out_list = [ctr, File.test_id, File.f_name]
-            out_list.extend([header[keyword] for keyword in keywords])
-            print ('%04d' + tbl_fmt) % tuple(out_list) 
+            try:
+                out_list.extend([header[keyword] for keyword in keywords])
+                print ('%04d' + tbl_fmt) % tuple(out_list)
+            except:
+                out_list.extend(None for keyword in keywords)
+                print ('%04d' + tbl_fmt) % tuple(out_list)
             ctr += 1
 
     def printFiltered(self, keywords, tbl_fmt):
@@ -356,8 +376,12 @@ class NIX_Image_List:
         for File in self.Filtered:
             header = fits.getheader(File.full_path)
             out_list = [ctr, File.test_id, File.f_name]
-            out_list.extend([header[keyword] for keyword in keywords])
-            print ('%04d' + tbl_fmt) % tuple(out_list) 
+            try:
+                out_list.extend([header[keyword] for keyword in keywords])
+                print ('%04d' + tbl_fmt) % tuple(out_list) 
+            except:
+                out_list.extend(None for keyword in keywords)
+                print ('%04d' + tbl_fmt) % tuple(out_list)
             ctr += 1
 
 
