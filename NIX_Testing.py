@@ -1,4 +1,5 @@
 from astropy.io import fits
+from astropy.visualization import ImageNormalize, PercentileInterval
 import numpy as np
 import sep
 import os
@@ -270,11 +271,11 @@ class NIX_Image(NIX_Base):
             self.median = np.median(image)
         return self.median
 
-    def getObjects(self, mask=None, search=None):
+    def getObjects(self, mask=None, search=None, thresh=500, minarea=20, force=False):
         
-        if not hasattr(self, 'objects'):
+        if not hasattr(self, 'objects') or force:
             image = self.getImage(mask=mask)
-            self.objects = sep.extract(image, 500, minarea=20)
+            self.objects = sep.extract(image, thresh, minarea=minarea)
 
         if search is None:
             return self.objects
@@ -283,10 +284,51 @@ class NIX_Image(NIX_Base):
             for object in self.objects:
                 if ((object['x'] - search['x'])**2 + (object['y'] - search['y'])**2 < search['r']**2):
                     return object
-      
-    def plotObjects(self, mask=None):
 
-        fig, ax = plt.subplots()
+    def plotDistortionPSF(self, grid=5, perc=95, mask=None, title=None):
+
+        objects = self.getObjects()
+        im_sz = 20
+
+        xs = np.array([obj['x'] for obj in objects])
+        ndxs = xs.argsort()
+        objects = objects[ndxs]
+
+        for i in range(grid):
+            ys = np.array([obj['y'] for obj in objects[grid*i:grid*(i+1)]])
+            ndxs = ys.argsort()
+            objects[grid*i:grid*(i+1)] = objects[grid*i:grid*(i+1)][ndxs]
+
+        fig, axs = plt.subplots(grid, grid, figsize=(12,12))
+
+        im = np.zeros([2048+2*im_sz, 2048+2*im_sz])
+        if mask is not None:
+            im[im_sz:im_sz+2048, im_sz:im_sz+2048] = self.getImage(mask=mask)
+        else:
+            im[im_sz:im_sz+2048, im_sz:im_sz+2048] = self.getImage()
+
+        norm = ImageNormalize(im, interval=PercentileInterval(perc))
+
+        for i in range(grid):
+            for j in range(grid):
+                obj = objects[grid*j+i]
+                x_c, y_c = int(obj['x'])+im_sz, int(obj['y'])+im_sz
+
+                crop_im = im[y_c-im_sz:y_c+im_sz, x_c-im_sz:x_c+im_sz]
+                axs[grid-1-i][j].imshow(crop_im, norm=norm, cmap='gray')
+                axs[grid-1-i][j].invert_yaxis()
+                axs[grid-1-i][j].get_yaxis().set_ticks([])
+                axs[grid-1-i][j].get_xaxis().set_ticks([])
+
+        if title is not None:
+            fig.suptitle(title)
+
+    def plotObjects(self, mask=None, figsize=None):
+
+        if figsize is not None:
+            fig, ax = plt.subplots(figsize=figsize)
+        else:
+            fig, ax = plt.subplots()
 
         ax.imshow(self.getImage(mask=mask))
         ax.invert_yaxis()
@@ -325,28 +367,40 @@ class NIX_Image_List:
 
     def loadFiles(self):
 
+        if 'prefix' in self.config:
+            prefix = True
+        else:
+            prefix = False
+
         if 'test_ids' in self.config:
 
             for test_id in self.config['test_ids']:
                 full_path = self.config['data_dir'] + '/'+ ('%s-%s' % tuple(test_id.split('-')[:2])) + '/' + test_id + '/'
                 files = os.listdir(full_path)
                 files.sort()
-    
+
                 for f_name in files:
-                    if f_name.endswith('fits'):
-                        self.NIX_Files.append(NIX_Image(full_path + f_name, test_id=test_id))
+                    if prefix:
+                        if f_name.startswith(self.config['prefix']) and f_name.endswith('fits'):
+                            self.NIX_Files.append(NIX_Image(full_path + f_name, test_id=test_id))                        
+                    else:
+                        if f_name.endswith('fits'):
+                            self.NIX_Files.append(NIX_Image(full_path + f_name, test_id=test_id))
 
         else:
 
             full_path = self.config['data_dir'] + '/'
             files = os.listdir(full_path)
             files.sort()
-    
+
             for f_name in files:
-                if f_name.endswith('fits'):
-                    self.NIX_Files.append(NIX_Image(full_path + f_name))
-
-
+                    if prefix:
+                        if f_name.startswith(self.config['prefix']) and f_name.endswith('fits'):
+                            self.NIX_Files.append(NIX_Image(full_path + f_name))                        
+                    else:
+                        if f_name.endswith('fits'):
+                            self.NIX_Files.append(NIX_Image(full_path + f_name))
+    
 
     def printTable(self, keywords, tbl_fmt):
 
@@ -471,12 +525,12 @@ class NIX_Image_List:
 
         return np.var(data, axis=2, ddof=1), diff[0,0,:]
 
-    def getObjects(self, mask=None, search=None, sepdict=None):
+    def getObjects(self, mask=None, search=None, sepdict=None, thresh=500, minarea=20, force=False):
         
         if sepdict is not None:
-            return [NI.getObjects(mask=mask, search=search)[sepdict] for NI in self.Filtered]
+            return [NI.getObjects(mask=mask, search=search, thresh=thresh, minarea=minarea, force=force)[sepdict] for NI in self.Filtered]
         else:
-            return [NI.getObjects(mask=mask, search=search) for NI in self.Filtered]
+            return [NI.getObjects(mask=mask, search=search, thresh=thresh, minarea=minarea, force=force) for NI in self.Filtered]
 
     def getHeaderValue(self, keyword):
 
@@ -543,8 +597,8 @@ class ProgressBar:
         else:
             self.function = ""
 
-    def init(self):
-        self.__init__()
+    def init(self, function=None):
+        self.__init__(function=function)
 
     def report(self, current, full):
         progress = float(current)/full*100
