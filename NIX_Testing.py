@@ -8,7 +8,12 @@ import matplotlib.pyplot as plt
 import time
 from IPython.display import clear_output
 from scipy.stats import linregress
+from scipy.special import jv
+from scipy.optimize import leastsq
+from ccdproc import cosmicray_lacosmic
 import multiprocessing as mp
+import pickle
+import re
 
 class NIX_Base(object):
 
@@ -26,7 +31,7 @@ class NIX_Base(object):
         else:
             self.test_id = None
 
-    def getImage(self, hdu=None, mask=None, dark=None, linearize=None, gain=None):
+    def getImage(self, hdu=None, mask=None, dark=None, linearize=False, gain=None):
 
         hdul = fits.open(self.full_path)
         image = hdul[0].data*1. 
@@ -37,12 +42,21 @@ class NIX_Base(object):
 
         if dark is not None:
             image = image - dark.getImage()
-        if linearize is not None:
-            image = linearize(image)
+        if linearize:
+            image = self.linearize(image)
         if mask is not None:
             image = image * mask.getImage()
         if gain is not None:
             image *= gain
+        return image
+
+    def linearize(self, image):
+        f = open('linearity_coef', 'rb')
+        pol = np.poly1d(pickle.load(f))
+        f.close()
+
+        image = pol(image)
+
         return image
 
     def plotImage(self, mask=None, dark=None):
@@ -285,10 +299,11 @@ class NIX_Image(NIX_Base):
                 if ((object['x'] - search['x'])**2 + (object['y'] - search['y'])**2 < search['r']**2):
                     return object
 
-    def plotDistortionPSF(self, grid=5, perc=95, mask=None, title=None):
+    
+    def plotDistortionPSF(self, grid=5, perc=95, mask=None, dark=None, linearize=False, title=None, clean=True, strehl=True, strehlWave=2.2, out_ims=None):
 
         objects = self.getObjects()
-        im_sz = 20
+        im_sz = 30
 
         xs = np.array([obj['x'] for obj in objects])
         ndxs = xs.argsort()
@@ -302,12 +317,15 @@ class NIX_Image(NIX_Base):
         fig, axs = plt.subplots(grid, grid, figsize=(12,12))
 
         im = np.zeros([2048+2*im_sz, 2048+2*im_sz])
-        if mask is not None:
-            im[im_sz:im_sz+2048, im_sz:im_sz+2048] = self.getImage(mask=mask)
-        else:
-            im[im_sz:im_sz+2048, im_sz:im_sz+2048] = self.getImage()
+        im[im_sz:im_sz+2048, im_sz:im_sz+2048] = self.getImage(mask=mask, dark=dark, linearize=linearize)
 
-        norm = ImageNormalize(im, interval=PercentileInterval(perc))
+        norm_im = ImageNormalize(im, interval=PercentileInterval(perc))
+
+        if clean:
+            im = badPixelInterpolate(im)
+
+        strehl_str = ''
+        fwhm_str = ''
 
         for i in range(grid):
             for j in range(grid):
@@ -315,13 +333,30 @@ class NIX_Image(NIX_Base):
                 x_c, y_c = int(obj['x'])+im_sz, int(obj['y'])+im_sz
 
                 crop_im = im[y_c-im_sz:y_c+im_sz, x_c-im_sz:x_c+im_sz]
-                axs[grid-1-i][j].imshow(crop_im, norm=norm, cmap='gray')
+                if strehl:
+                    airy_rad = 1.22*strehlWave*1e-6/8./np.pi*180.*60.*60.
+                    strehl, crop_im, sig3 = strehlRatio(crop_im, strehlWave)
+                    crop_im, _ = cosmicray_lacosmic(crop_im)
+                    if out_ims is not None:
+                        fits.PrimaryHDU(crop_im).writeto(out_ims % (grid-1-i, j), overwrite=True)
+                    strehl = HDRL_strehl(out_ims % (grid-1-i, j), strehlWave, 8./2., 1.116/2., 13., airy_rad, airy_rad*3, airy_rad*4)
+                    axs[grid-1-i][j].set_title("%.3f" % strehl)
+                
+                strehl_str += '%.4f ' % strehl 
+                fwhm_str += '%2.6f ' % (sig3/3.*2.35) 
+
+                axs[grid-1-i][j].imshow(crop_im, cmap='gray', norm=norm_im)
                 axs[grid-1-i][j].invert_yaxis()
                 axs[grid-1-i][j].get_yaxis().set_ticks([])
                 axs[grid-1-i][j].get_xaxis().set_ticks([])
 
+            strehl_str += '\n'
+            fwhm_str += '\n'
+
         if title is not None:
             fig.suptitle(title)
+
+        return strehl_str, fwhm_str
 
     def plotObjects(self, mask=None, figsize=None):
 
@@ -564,6 +599,72 @@ def strip_prefix_from_keyword(keyword):
     keyword = '_'.join(keyword.split(' '))
     return keyword
 
+def Gaussian2D(p, x, y):
+    return p[0]*np.exp(-((x-p[1])**2+(y-p[2])**2)*0.5/p[3]**2)+p[4]
+
+def Gaussian2D_errf(p, x, y, z):
+    return z-Gaussian2D(p, x, y)
+
+def strehlRatio(image, strehlWave):
+
+    sz = image.shape[0]
+
+    sum_diff, diff = getDiffractionPattern(strehlWave, 13.)
+
+    XX = np.arange(sz)
+    XX, YY = np.meshgrid(XX, XX)
+    x0 = [1e4, sz/2., sz/2., 2., 0.]
+
+    ndx = np.where(~np.isnan(image))
+
+    out = leastsq(Gaussian2D_errf, x0, args=(XX[ndx].flatten(), 
+        YY[ndx].flatten(), image[ndx].flatten()), full_output=True)
+
+    #print out
+
+    x, y, sig = out[0][1], out[0][2], out[0][3]
+
+    ndx_in = np.where(np.sqrt((XX - x)**2+(YY-y)**2) < 3*sig)
+    ndx_ann = np.where((np.sqrt((XX - x)**2+(YY-y)**2) > 9*sig))
+
+    backg = np.nanmedian(image[ndx_ann])
+    image -= backg
+    image[np.where(np.isnan(image))] = 0
+    counts = np.sum(image[ndx_in])
+
+    strehl = np.max(image[int(y)-1:int(y)+2,int(x)-1:int(x)+2])/(counts/sum_diff)
+
+    #print y, x, strehl, image[int(y),int(x)], counts, backg, sig
+
+    return strehl, image, 3*sig
+
+
+def badPixelInterpolate(image, cosmicray=True):
+
+    xsz = image.shape[0]
+    ysz = image.shape[1]
+    stack = np.zeros([xsz, ysz, 8])
+    stack[:,:,0] = np.roll(image, 1, axis=0)
+    stack[:,:,1] = np.roll(image, 1, axis=1)
+    stack[:,:,2] = np.roll(image, -1, axis=0)
+    stack[:,:,3] = np.roll(image, -1, axis=1)
+    stack[:,:,4] = np.roll(np.roll(image, 1, axis=0), 1, axis=1)
+    stack[:,:,5] = np.roll(np.roll(image, 1, axis=0), -1, axis=1)
+    stack[:,:,6] = np.roll(np.roll(image, -1, axis=0), 1, axis=1)
+    stack[:,:,7] = np.roll(np.roll(image, -1, axis=0), -1, axis=1)
+
+    stack[np.where(stack == 0)] = np.NaN
+
+    std_stack = np.nanstd(stack, axis=2)
+    med_stack = np.nanmedian(stack, axis=2)
+
+    ndx = np.where(image == 0)
+    image[ndx] = med_stack[ndx]
+
+    if cosmicray:
+        image, _ = cosmicray_lacosmic(image)
+
+    return image
 
 def doGridAnalysis(data, grid, window, start, func, factor=1., index=None):
 
@@ -585,6 +686,44 @@ def _singleLinearRegress(args):
     ang, lin, R, _, _ = linregress(arr1, arr2)
     return ang, lin, R
 
+def getDiffractionPattern(wave, plate_scale, D=8, fill=0.14, size=40):
+
+    wave *= 1e-6
+    pix = np.arange(size*4+0.1).astype(float)-size*2
+
+    XX, YY = np.meshgrid(pix,pix)
+
+    XX = (XX*plate_scale/4./60./60./180./1000.*np.pi)*np.pi*D/wave
+    YY = (YY*plate_scale/4./60./60./180./1000.*np.pi)*np.pi*D/wave
+
+    R = lambda x, y: np.sqrt((x)**2+(y)**2)
+
+    func = lambda x, y, f: (2*jv(1,R(x,y))-2*f*jv(1,f*R(x,y)))**2/((1-f**2)**2*R(x,y)**2)
+
+    im = func(XX, YY, fill)
+    im[size*2,size*2] = 1
+
+    return np.sum(im)/16., im
+
+def HDRL_strehl(f_name, wave, r1, r2, pix_scale, flux_r, bkg_r1, bkg_r2, path="/home/ydallilar/Documents/NIX/scripts/NIX_Testing/strehl" ):
+
+    import subprocess
+    env = dict(os.environ)
+    env['LD_LIBRARY_PATH'] = path
+    cmd = "%s/strehl %s %.10f %.10f %.10f %.10f %.10f %.10f %.10f %.10f" % \
+        (path, f_name, wave*1e-6, r1, r2, pix_scale*1e-3, pix_scale*1e-3, flux_r,
+        bkg_r1, bkg_r2)
+    #print cmd.split()
+    #cmd = "ls"
+    proc = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    o, _ = proc.communicate()
+    o = o.decode('ascii').split('\n')
+    #print o[10]
+    #print o[10].split('()')[0]
+    res = o[10].split('(')[0].split(':')[1]
+    #print res
+
+    return float(res)
 
 class ProgressBar:
 
