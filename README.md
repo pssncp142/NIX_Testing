@@ -15,5 +15,7 @@ cd NIX_Testing
 pip install .
 ```
 
+Added some bindings for HDRL using hdrldemo-1.2.0 template.
+
 
 

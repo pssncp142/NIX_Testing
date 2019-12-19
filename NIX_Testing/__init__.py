@@ -11,6 +11,7 @@ from scipy.stats import linregress
 from scipy.special import jv
 from scipy.optimize import leastsq
 from ccdproc import cosmicray_lacosmic
+from HDRL import compute_strehl
 import multiprocessing as mp
 import pickle
 import re
@@ -339,7 +340,8 @@ class NIX_Image(NIX_Base):
                     crop_im, _ = cosmicray_lacosmic(crop_im)
                     if out_ims is not None:
                         fits.PrimaryHDU(crop_im).writeto(out_ims % (grid-1-i, j), overwrite=True)
-                    strehl = HDRL_strehl(out_ims % (grid-1-i, j), strehlWave, 8./2., 1.116/2., 13., airy_rad, airy_rad*3, airy_rad*4)
+                    #strehl = HDRL_strehl(out_ims % (grid-1-i, j), strehlWave, 8./2., 1.116/2., 13., airy_rad, airy_rad*3, airy_rad*4)
+                    strehl = HDRL_strehl2(crop_im, strehlWave, 8./2., 1.116/2., 13., airy_rad, airy_rad*3, airy_rad*4)
                     axs[grid-1-i][j].set_title("%.3f" % strehl)
                 
                 strehl_str += '%.4f ' % strehl 
@@ -704,6 +706,12 @@ def getDiffractionPattern(wave, plate_scale, D=8, fill=0.14, size=40):
     im[size*2,size*2] = 1
 
     return np.sum(im)/16., im
+
+def HDRL_strehl2(image, wave, r1, r2, pixsc, flux_r, bkg_r1, bkg_r2):
+
+    strehl = compute_strehl(image, wave*1e-6, r1, r2, pixsc*1e-3, flux_r, bkg_r1, bkg_r2) 
+
+    return strehl.strehl_value.data
 
 def HDRL_strehl(f_name, wave, r1, r2, pix_scale, flux_r, bkg_r1, bkg_r2, path="/home/ydallilar/Documents/NIX/scripts/NIX_Testing/strehl" ):
 
