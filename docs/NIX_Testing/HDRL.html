@@ -1,0 +1,1017 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.2" />
+<title>NIX_Testing.HDRL API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>NIX_Testing.HDRL</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from ctypes import c_int, c_uint, c_float, c_double, c_bool, c_void_p, c_size_t, POINTER, Structure, byref
+import numpy as np
+import numpy.ctypeslib as npct
+from astropy.io import fits
+import pkg_resources
+import os
+
+from enum import IntEnum
+
+class CtypesEnum(IntEnum):
+    @classmethod
+    def from_param(cls, obj):
+        return int(obj)
+
+class CPL_BORDER(CtypesEnum):
+    FILTER=0
+    ZERO=1
+    CROP=2
+    NOP=3
+    COPY=4
+
+class CPL_FILTER(CtypesEnum):
+    EROSION=0
+    DILATION=1
+    OPENING=2
+    CLOSING=3
+    LINEAR=4
+    LINEAR_SCALE=5
+    AVERAGE=6
+    AVERAGE_FAST=7
+    MEDIAN=8
+    STDEV=9
+    STDEV_FAST=10
+    MORPHO=11
+    MORPHO_SCALE=12
+
+so_name = pkg_resources.resource_filename(__name__, &#39;lib/libhdrldemo.so&#39;)
+hdrl = npct.load_library(so_name, &#34;.&#34;)
+
+arr_1d_dbl = npct.ndpointer(dtype=np.float64, ndim=1, flags=&#39;CONTIGUOUS&#39;) 
+arr_1d_ubyte = npct.ndpointer(dtype=np.ubyte, ndim=1, flags=&#39;CONTIGUOUS&#39;) 
+
+ERROR_IMAGE = c_bool.in_dll(hdrl, &#39;ERROR_IMAGE&#39;)
+ERROR_METHOD = c_int.in_dll(hdrl, &#39;ERROR_METHOD&#39;)
+RN_ADU = c_double.in_dll(hdrl, &#39;RN_ADU&#39;)
+GAIN = c_double.in_dll(hdrl, &#39;GAIN&#39;)
+
+class hdrl_value(Structure):
+    _fields_=[(&#39;data&#39;, c_double), (&#39;error&#39;, c_double)]
+
+class hdrl_strehl_result(Structure):
+    _fields_=[(&#39;strehl_value&#39;, hdrl_value), (&#39;star_x&#39;, c_double), (&#39;star_y&#39;, c_double), 
+            (&#39;star_peak&#39;, hdrl_value), (&#39;star_flux&#39;, hdrl_value), (&#39;star_background&#39;, hdrl_value), 
+            (&#39;computed_background_error&#39;, c_double), (&#39;nbackground_pixels&#39;, c_size_t)]
+
+class hdrl_bpm_fit_parameter(Structure):
+    _fields_=[(&#39;base&#39;, c_void_p), (&#39;degree&#39;, c_int), (&#39;pval&#39;, c_double),
+            (&#39;rel_chi_l&#39;, c_double), (&#39;rel_chi_h&#39;, c_double),
+            (&#39;rel_coef_l&#39;, c_double), (&#39;rel_chi_h&#39;, c_double)]
+
+class hdrl_bpm_2d_parameter(Structure):
+    _fields_=[(&#39;base&#39;, c_void_p), (&#39;filter&#39;, c_int), (&#39;border&#39;, c_int),
+            (&#39;kappa_low&#39;, c_double), (&#39;kappa_high&#39;, c_double), (&#39;maxiter&#39;, c_int),
+            (&#39;steps_x&#39;, c_int), (&#39;steps_y&#39;, c_int),
+            (&#39;filter_size_x&#39;, c_int), (&#39;filter_size_y&#39;, c_int),
+            (&#39;order_x&#39;, c_int), (&#39;order_y&#39;, c_int),
+            (&#39;smooth_x&#39;, c_int), (&#39;smooth_y&#39;, c_int), (&#39;method&#39;, c_int)]
+
+def init():
+
+    hdrl.hdrl_init.restype = None
+    hdrl.hdrl_init()
+
+def end():
+
+    hdrl.hdrl_end.restype = None
+    hdrl.hdrl_end()
+
+def bpm_2d_parameter_create(filter, border,
+                            kappa_low, kappa_high, maxiter,
+                            steps_x, steps_y,
+                            filter_size_x, filter_size_y,
+                                                        order_x, order_y,
+                            smooth_x, smooth_y):
+
+    hdrl.hdrl_bpm_2d_parameter_create.restype = POINTER(hdrl_bpm_2d_parameter)
+    hdrl.hdrl_bpm_2d_parameter_create.argtypes = [c_int, c_int,
+                                                    c_double, c_double, c_int,
+                                                    c_int, c_int, c_int, c_int,
+                                                    c_int, c_int, c_int, c_int]
+
+    params = hdrl.hdrl_bpm_2d_parameter_create(filter, border,
+                            kappa_low, kappa_high, maxiter,
+                            steps_x, steps_y,
+                            filter_size_x, filter_size_y,
+                                                        order_x, order_y,
+                            smooth_x, smooth_y)
+
+    return params
+
+def bpm_fit_parameter_create(degree, pval, rel_chi_l, rel_chi_h, rel_coef_l, rel_coef_h):
+
+    hdrl.hdrl_bpm_fit_parameter_create.restype = POINTER(hdrl_bpm_fit_parameter)
+    hdrl.hdrl_bpm_fit_parameter_create.argtypes = [c_int, c_double,
+                                                        c_double, c_double,
+                                                        c_double, c_double]
+
+    params = hdrl.hdrl_bpm_fit_parameter_create(degree, pval, rel_chi_l, rel_chi_h, rel_coef_l, rel_coef_h)
+
+    return params
+
+def compute_strehl(image, wave, m1_rad, m2_rad, pixsc, flux_r, bkg_low, bkg_high):
+
+    hdrl.hdrl_compute_strehl_numpy_float64.restype = hdrl_strehl_result
+    hdrl.hdrl_compute_strehl_numpy_float64.argtypes = [arr_1d_dbl, c_int, c_int,
+                                                            c_double, c_double, c_double,
+                                                            c_double, c_double, 
+                                                            c_double, c_double, c_double]
+
+    sz = image.shape[0]
+    image = np.ravel(image).astype(np.float64)
+
+    strehl = hdrl.hdrl_compute_strehl_numpy_float64(image, sz, sz, wave, m1_rad, m2_rad, pixsc, pixsc,
+                                flux_r, bkg_low, bkg_high)
+
+    return strehl
+
+def bpm_2d_compute(image, method=&#39;filter&#39;, kappa_low=5., kappa_high=10., maxiter=10,
+                                                steps_x=5, steps_y=5,
+                                                filter_size_x=5, filter_size_y=5,
+                                                order_x=2, order_y=2,
+                                                smooth_x=5, smooth_y=5,
+                                                filter=CPL_FILTER.MEDIAN, border=CPL_BORDER.FILTER):
+
+    hdrl.hdrl_bpm_2d_compute_numpy_float64.restype = c_int
+    hdrl.hdrl_bpm_2d_compute_numpy_float64.argtypes = [arr_1d_dbl, arr_1d_ubyte, POINTER(hdrl_bpm_2d_parameter),
+                                                        c_int, c_int]
+
+    if (method == &#39;filter&#39;):
+        params = bpm_2d_parameter_create(filter, border, kappa_low, kappa_high, maxiter,
+                                -1, -1, -1, -1, -1, -1, smooth_x, smooth_y)
+    elif (method == &#39;legendre&#39;):
+        params = bpm_2d_parameter_create(filter, border, kappa_low, kappa_high, maxiter,
+                                                steps_x, steps_y,
+                                                filter_size_x, filter_size_y,
+                                                order_x, order_y, -1, -1)
+    else:
+        print(&#34;Undefined method&#34;)
+        return -1
+
+    szx = image.shape[0]
+    szy = image.shape[1]
+ 
+    image = np.ravel(image).astype(np.float64)
+    mask = np.zeros([szx*szy]).astype(np.ubyte)
+
+    res = hdrl.hdrl_bpm_2d_compute_numpy_float64(image, mask, params, szx, szy)
+
+    return np.reshape(mask, [szx, szy])
+
+def bpm_3d_compute(images):
+
+    hdrl.hdrl_bpm_3d_compute_numpy_float64.restype = c_int
+    hdrl.hdrl_bpm_3d_compute_numpy_float64.argtypes = [arr_1d_dbl, arr_1d_ubyte, c_int, c_int, c_int]
+
+    szx = images.shape[0]
+    szy = images.shape[1]
+    szz = images.shape[2]
+
+    ims_out = np.zeros([szz*szx*szy]).astype(np.ubyte)
+
+    ims_in = np.ravel(np.moveaxis(images, -1, 0)).astype(np.float64)
+
+    res = hdrl.hdrl_bpm_3d_compute_numpy_float64(ims_in, ims_out, szx, szy, szz)
+
+    return np.moveaxis(np.reshape(ims_out, [szz, szx, szy]), 0, -1)
+
+def bpm_fit_compute(images, exptime, method=&#39;pval&#39;, degree=1, pval=10.,
+                    rel_chi_low=3., rel_chi_high=10., rel_coef_low=3., rel_coef_high=10.):
+
+    hdrl.hdrl_bpm_fit_compute_numpy_float64.restype = c_int
+    hdrl.hdrl_bpm_fit_compute_numpy_float64.argtypes = [arr_1d_dbl, arr_1d_ubyte, arr_1d_dbl, POINTER(hdrl_bpm_fit_parameter),
+                                                         c_int, c_int, c_int]
+
+    szx = images.shape[0]
+    szy = images.shape[1]
+    szz = images.shape[2]
+
+    exptime = exptime.astype(np.float64)
+    ims_out = np.zeros([szx*szy]).astype(np.ubyte)
+
+    ims_in = np.ravel(np.moveaxis(images, -1, 0)).astype(np.float64)
+
+    if method==&#39;pval&#39;:
+        params = bpm_fit_parameter_create(degree, pval, -1, -1, -1, -1)
+    elif method==&#39;rel_chi&#39;:
+        params = bpm_fit_parameter_create(degree, -1, rel_chi_low, rel_chi_high, -1, -1)
+    elif method==&#39;rel_coef&#39;:
+        params = bpm_fit_parameter_create(degree, -1, -1, -1, rel_coef_low, rel_coef_high)
+    else:
+        print(&#34;Undefined method&#34;)
+        return -1
+
+    res = hdrl.hdrl_bpm_fit_compute_numpy_float64(ims_in, ims_out, exptime, params, szx, szy, szz)
+
+    return np.reshape(ims_out, [szx, szy])
+
+
+def collapse_median(images):
+
+    hdrl.hdrl_collapse_median_numpy_float64.restype = c_int
+    hdrl.hdrl_collapse_median_numpy_float64.argtypes = [arr_1d_dbl, arr_1d_dbl,
+                                                        c_int, c_int, c_int]
+    szx = images.shape[0]
+    szy = images.shape[1]
+    szz = images.shape[2]
+
+    im_out = np.zeros([szx*szy]).astype(np.float64)
+
+    ims_in = np.ravel(np.moveaxis(images, -1, 0)).astype(np.float64)
+
+    res = hdrl.hdrl_collapse_median_numpy_float64(ims_in, im_out, szx, szy, szz)
+
+    return np.reshape(im_out, [szx, szy])</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="NIX_Testing.HDRL.bpm_2d_compute"><code class="name flex">
+<span>def <span class="ident">bpm_2d_compute</span></span>(<span>image, method='filter', kappa_low=5.0, kappa_high=10.0, maxiter=10, steps_x=5, steps_y=5, filter_size_x=5, filter_size_y=5, order_x=2, order_y=2, smooth_x=5, smooth_y=5, filter=CPL_FILTER.MEDIAN, border=CPL_BORDER.FILTER)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bpm_2d_compute(image, method=&#39;filter&#39;, kappa_low=5., kappa_high=10., maxiter=10,
+                                                steps_x=5, steps_y=5,
+                                                filter_size_x=5, filter_size_y=5,
+                                                order_x=2, order_y=2,
+                                                smooth_x=5, smooth_y=5,
+                                                filter=CPL_FILTER.MEDIAN, border=CPL_BORDER.FILTER):
+
+    hdrl.hdrl_bpm_2d_compute_numpy_float64.restype = c_int
+    hdrl.hdrl_bpm_2d_compute_numpy_float64.argtypes = [arr_1d_dbl, arr_1d_ubyte, POINTER(hdrl_bpm_2d_parameter),
+                                                        c_int, c_int]
+
+    if (method == &#39;filter&#39;):
+        params = bpm_2d_parameter_create(filter, border, kappa_low, kappa_high, maxiter,
+                                -1, -1, -1, -1, -1, -1, smooth_x, smooth_y)
+    elif (method == &#39;legendre&#39;):
+        params = bpm_2d_parameter_create(filter, border, kappa_low, kappa_high, maxiter,
+                                                steps_x, steps_y,
+                                                filter_size_x, filter_size_y,
+                                                order_x, order_y, -1, -1)
+    else:
+        print(&#34;Undefined method&#34;)
+        return -1
+
+    szx = image.shape[0]
+    szy = image.shape[1]
+ 
+    image = np.ravel(image).astype(np.float64)
+    mask = np.zeros([szx*szy]).astype(np.ubyte)
+
+    res = hdrl.hdrl_bpm_2d_compute_numpy_float64(image, mask, params, szx, szy)
+
+    return np.reshape(mask, [szx, szy])</code></pre>
+</details>
+</dd>
+<dt id="NIX_Testing.HDRL.bpm_2d_parameter_create"><code class="name flex">
+<span>def <span class="ident">bpm_2d_parameter_create</span></span>(<span>filter, border, kappa_low, kappa_high, maxiter, steps_x, steps_y, filter_size_x, filter_size_y, order_x, order_y, smooth_x, smooth_y)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bpm_2d_parameter_create(filter, border,
+                            kappa_low, kappa_high, maxiter,
+                            steps_x, steps_y,
+                            filter_size_x, filter_size_y,
+                                                        order_x, order_y,
+                            smooth_x, smooth_y):
+
+    hdrl.hdrl_bpm_2d_parameter_create.restype = POINTER(hdrl_bpm_2d_parameter)
+    hdrl.hdrl_bpm_2d_parameter_create.argtypes = [c_int, c_int,
+                                                    c_double, c_double, c_int,
+                                                    c_int, c_int, c_int, c_int,
+                                                    c_int, c_int, c_int, c_int]
+
+    params = hdrl.hdrl_bpm_2d_parameter_create(filter, border,
+                            kappa_low, kappa_high, maxiter,
+                            steps_x, steps_y,
+                            filter_size_x, filter_size_y,
+                                                        order_x, order_y,
+                            smooth_x, smooth_y)
+
+    return params</code></pre>
+</details>
+</dd>
+<dt id="NIX_Testing.HDRL.bpm_3d_compute"><code class="name flex">
+<span>def <span class="ident">bpm_3d_compute</span></span>(<span>images)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bpm_3d_compute(images):
+
+    hdrl.hdrl_bpm_3d_compute_numpy_float64.restype = c_int
+    hdrl.hdrl_bpm_3d_compute_numpy_float64.argtypes = [arr_1d_dbl, arr_1d_ubyte, c_int, c_int, c_int]
+
+    szx = images.shape[0]
+    szy = images.shape[1]
+    szz = images.shape[2]
+
+    ims_out = np.zeros([szz*szx*szy]).astype(np.ubyte)
+
+    ims_in = np.ravel(np.moveaxis(images, -1, 0)).astype(np.float64)
+
+    res = hdrl.hdrl_bpm_3d_compute_numpy_float64(ims_in, ims_out, szx, szy, szz)
+
+    return np.moveaxis(np.reshape(ims_out, [szz, szx, szy]), 0, -1)</code></pre>
+</details>
+</dd>
+<dt id="NIX_Testing.HDRL.bpm_fit_compute"><code class="name flex">
+<span>def <span class="ident">bpm_fit_compute</span></span>(<span>images, exptime, method='pval', degree=1, pval=10.0, rel_chi_low=3.0, rel_chi_high=10.0, rel_coef_low=3.0, rel_coef_high=10.0)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bpm_fit_compute(images, exptime, method=&#39;pval&#39;, degree=1, pval=10.,
+                    rel_chi_low=3., rel_chi_high=10., rel_coef_low=3., rel_coef_high=10.):
+
+    hdrl.hdrl_bpm_fit_compute_numpy_float64.restype = c_int
+    hdrl.hdrl_bpm_fit_compute_numpy_float64.argtypes = [arr_1d_dbl, arr_1d_ubyte, arr_1d_dbl, POINTER(hdrl_bpm_fit_parameter),
+                                                         c_int, c_int, c_int]
+
+    szx = images.shape[0]
+    szy = images.shape[1]
+    szz = images.shape[2]
+
+    exptime = exptime.astype(np.float64)
+    ims_out = np.zeros([szx*szy]).astype(np.ubyte)
+
+    ims_in = np.ravel(np.moveaxis(images, -1, 0)).astype(np.float64)
+
+    if method==&#39;pval&#39;:
+        params = bpm_fit_parameter_create(degree, pval, -1, -1, -1, -1)
+    elif method==&#39;rel_chi&#39;:
+        params = bpm_fit_parameter_create(degree, -1, rel_chi_low, rel_chi_high, -1, -1)
+    elif method==&#39;rel_coef&#39;:
+        params = bpm_fit_parameter_create(degree, -1, -1, -1, rel_coef_low, rel_coef_high)
+    else:
+        print(&#34;Undefined method&#34;)
+        return -1
+
+    res = hdrl.hdrl_bpm_fit_compute_numpy_float64(ims_in, ims_out, exptime, params, szx, szy, szz)
+
+    return np.reshape(ims_out, [szx, szy])</code></pre>
+</details>
+</dd>
+<dt id="NIX_Testing.HDRL.bpm_fit_parameter_create"><code class="name flex">
+<span>def <span class="ident">bpm_fit_parameter_create</span></span>(<span>degree, pval, rel_chi_l, rel_chi_h, rel_coef_l, rel_coef_h)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bpm_fit_parameter_create(degree, pval, rel_chi_l, rel_chi_h, rel_coef_l, rel_coef_h):
+
+    hdrl.hdrl_bpm_fit_parameter_create.restype = POINTER(hdrl_bpm_fit_parameter)
+    hdrl.hdrl_bpm_fit_parameter_create.argtypes = [c_int, c_double,
+                                                        c_double, c_double,
+                                                        c_double, c_double]
+
+    params = hdrl.hdrl_bpm_fit_parameter_create(degree, pval, rel_chi_l, rel_chi_h, rel_coef_l, rel_coef_h)
+
+    return params</code></pre>
+</details>
+</dd>
+<dt id="NIX_Testing.HDRL.collapse_median"><code class="name flex">
+<span>def <span class="ident">collapse_median</span></span>(<span>images)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def collapse_median(images):
+
+    hdrl.hdrl_collapse_median_numpy_float64.restype = c_int
+    hdrl.hdrl_collapse_median_numpy_float64.argtypes = [arr_1d_dbl, arr_1d_dbl,
+                                                        c_int, c_int, c_int]
+    szx = images.shape[0]
+    szy = images.shape[1]
+    szz = images.shape[2]
+
+    im_out = np.zeros([szx*szy]).astype(np.float64)
+
+    ims_in = np.ravel(np.moveaxis(images, -1, 0)).astype(np.float64)
+
+    res = hdrl.hdrl_collapse_median_numpy_float64(ims_in, im_out, szx, szy, szz)
+
+    return np.reshape(im_out, [szx, szy])</code></pre>
+</details>
+</dd>
+<dt id="NIX_Testing.HDRL.compute_strehl"><code class="name flex">
+<span>def <span class="ident">compute_strehl</span></span>(<span>image, wave, m1_rad, m2_rad, pixsc, flux_r, bkg_low, bkg_high)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compute_strehl(image, wave, m1_rad, m2_rad, pixsc, flux_r, bkg_low, bkg_high):
+
+    hdrl.hdrl_compute_strehl_numpy_float64.restype = hdrl_strehl_result
+    hdrl.hdrl_compute_strehl_numpy_float64.argtypes = [arr_1d_dbl, c_int, c_int,
+                                                            c_double, c_double, c_double,
+                                                            c_double, c_double, 
+                                                            c_double, c_double, c_double]
+
+    sz = image.shape[0]
+    image = np.ravel(image).astype(np.float64)
+
+    strehl = hdrl.hdrl_compute_strehl_numpy_float64(image, sz, sz, wave, m1_rad, m2_rad, pixsc, pixsc,
+                                flux_r, bkg_low, bkg_high)
+
+    return strehl</code></pre>
+</details>
+</dd>
+<dt id="NIX_Testing.HDRL.end"><code class="name flex">
+<span>def <span class="ident">end</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def end():
+
+    hdrl.hdrl_end.restype = None
+    hdrl.hdrl_end()</code></pre>
+</details>
+</dd>
+<dt id="NIX_Testing.HDRL.init"><code class="name flex">
+<span>def <span class="ident">init</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def init():
+
+    hdrl.hdrl_init.restype = None
+    hdrl.hdrl_init()</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="NIX_Testing.HDRL.CPL_BORDER"><code class="flex name class">
+<span>class <span class="ident">CPL_BORDER</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CPL_BORDER(CtypesEnum):
+    FILTER=0
+    ZERO=1
+    CROP=2
+    NOP=3
+    COPY=4</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="NIX_Testing.HDRL.CtypesEnum" href="#NIX_Testing.HDRL.CtypesEnum">CtypesEnum</a></li>
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="NIX_Testing.HDRL.CPL_BORDER.COPY"><code class="name">var <span class="ident">COPY</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.CPL_BORDER.CROP"><code class="name">var <span class="ident">CROP</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.CPL_BORDER.FILTER"><code class="name">var <span class="ident">FILTER</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.CPL_BORDER.NOP"><code class="name">var <span class="ident">NOP</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.CPL_BORDER.ZERO"><code class="name">var <span class="ident">ZERO</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+</dl>
+</dd>
+<dt id="NIX_Testing.HDRL.CPL_FILTER"><code class="flex name class">
+<span>class <span class="ident">CPL_FILTER</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CPL_FILTER(CtypesEnum):
+    EROSION=0
+    DILATION=1
+    OPENING=2
+    CLOSING=3
+    LINEAR=4
+    LINEAR_SCALE=5
+    AVERAGE=6
+    AVERAGE_FAST=7
+    MEDIAN=8
+    STDEV=9
+    STDEV_FAST=10
+    MORPHO=11
+    MORPHO_SCALE=12</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="NIX_Testing.HDRL.CtypesEnum" href="#NIX_Testing.HDRL.CtypesEnum">CtypesEnum</a></li>
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="NIX_Testing.HDRL.CPL_FILTER.AVERAGE"><code class="name">var <span class="ident">AVERAGE</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.CPL_FILTER.AVERAGE_FAST"><code class="name">var <span class="ident">AVERAGE_FAST</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.CPL_FILTER.CLOSING"><code class="name">var <span class="ident">CLOSING</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.CPL_FILTER.DILATION"><code class="name">var <span class="ident">DILATION</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.CPL_FILTER.EROSION"><code class="name">var <span class="ident">EROSION</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.CPL_FILTER.LINEAR"><code class="name">var <span class="ident">LINEAR</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.CPL_FILTER.LINEAR_SCALE"><code class="name">var <span class="ident">LINEAR_SCALE</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.CPL_FILTER.MEDIAN"><code class="name">var <span class="ident">MEDIAN</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.CPL_FILTER.MORPHO"><code class="name">var <span class="ident">MORPHO</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.CPL_FILTER.MORPHO_SCALE"><code class="name">var <span class="ident">MORPHO_SCALE</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.CPL_FILTER.OPENING"><code class="name">var <span class="ident">OPENING</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.CPL_FILTER.STDEV"><code class="name">var <span class="ident">STDEV</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.CPL_FILTER.STDEV_FAST"><code class="name">var <span class="ident">STDEV_FAST</span></code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+</dd>
+</dl>
+</dd>
+<dt id="NIX_Testing.HDRL.CtypesEnum"><code class="flex name class">
+<span>class <span class="ident">CtypesEnum</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>An enumeration.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CtypesEnum(IntEnum):
+    @classmethod
+    def from_param(cls, obj):
+        return int(obj)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="NIX_Testing.HDRL.CPL_BORDER" href="#NIX_Testing.HDRL.CPL_BORDER">CPL_BORDER</a></li>
+<li><a title="NIX_Testing.HDRL.CPL_FILTER" href="#NIX_Testing.HDRL.CPL_FILTER">CPL_FILTER</a></li>
+</ul>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_2d_parameter"><code class="flex name class">
+<span>class <span class="ident">hdrl_bpm_2d_parameter</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Structure base class</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class hdrl_bpm_2d_parameter(Structure):
+    _fields_=[(&#39;base&#39;, c_void_p), (&#39;filter&#39;, c_int), (&#39;border&#39;, c_int),
+            (&#39;kappa_low&#39;, c_double), (&#39;kappa_high&#39;, c_double), (&#39;maxiter&#39;, c_int),
+            (&#39;steps_x&#39;, c_int), (&#39;steps_y&#39;, c_int),
+            (&#39;filter_size_x&#39;, c_int), (&#39;filter_size_y&#39;, c_int),
+            (&#39;order_x&#39;, c_int), (&#39;order_y&#39;, c_int),
+            (&#39;smooth_x&#39;, c_int), (&#39;smooth_y&#39;, c_int), (&#39;method&#39;, c_int)]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.base"><code class="name">var <span class="ident">base</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.border"><code class="name">var <span class="ident">border</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.filter"><code class="name">var <span class="ident">filter</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.filter_size_x"><code class="name">var <span class="ident">filter_size_x</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.filter_size_y"><code class="name">var <span class="ident">filter_size_y</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.kappa_high"><code class="name">var <span class="ident">kappa_high</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.kappa_low"><code class="name">var <span class="ident">kappa_low</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.maxiter"><code class="name">var <span class="ident">maxiter</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.method"><code class="name">var <span class="ident">method</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.order_x"><code class="name">var <span class="ident">order_x</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.order_y"><code class="name">var <span class="ident">order_y</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.smooth_x"><code class="name">var <span class="ident">smooth_x</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.smooth_y"><code class="name">var <span class="ident">smooth_y</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.steps_x"><code class="name">var <span class="ident">steps_x</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.steps_y"><code class="name">var <span class="ident">steps_y</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+</dl>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_fit_parameter"><code class="flex name class">
+<span>class <span class="ident">hdrl_bpm_fit_parameter</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Structure base class</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class hdrl_bpm_fit_parameter(Structure):
+    _fields_=[(&#39;base&#39;, c_void_p), (&#39;degree&#39;, c_int), (&#39;pval&#39;, c_double),
+            (&#39;rel_chi_l&#39;, c_double), (&#39;rel_chi_h&#39;, c_double),
+            (&#39;rel_coef_l&#39;, c_double), (&#39;rel_chi_h&#39;, c_double)]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_fit_parameter.base"><code class="name">var <span class="ident">base</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_fit_parameter.degree"><code class="name">var <span class="ident">degree</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_fit_parameter.pval"><code class="name">var <span class="ident">pval</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_fit_parameter.rel_chi_h"><code class="name">var <span class="ident">rel_chi_h</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_fit_parameter.rel_chi_l"><code class="name">var <span class="ident">rel_chi_l</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_bpm_fit_parameter.rel_coef_l"><code class="name">var <span class="ident">rel_coef_l</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+</dl>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_strehl_result"><code class="flex name class">
+<span>class <span class="ident">hdrl_strehl_result</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Structure base class</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class hdrl_strehl_result(Structure):
+    _fields_=[(&#39;strehl_value&#39;, hdrl_value), (&#39;star_x&#39;, c_double), (&#39;star_y&#39;, c_double), 
+            (&#39;star_peak&#39;, hdrl_value), (&#39;star_flux&#39;, hdrl_value), (&#39;star_background&#39;, hdrl_value), 
+            (&#39;computed_background_error&#39;, c_double), (&#39;nbackground_pixels&#39;, c_size_t)]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="NIX_Testing.HDRL.hdrl_strehl_result.computed_background_error"><code class="name">var <span class="ident">computed_background_error</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_strehl_result.nbackground_pixels"><code class="name">var <span class="ident">nbackground_pixels</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_strehl_result.star_background"><code class="name">var <span class="ident">star_background</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_strehl_result.star_flux"><code class="name">var <span class="ident">star_flux</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_strehl_result.star_peak"><code class="name">var <span class="ident">star_peak</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_strehl_result.star_x"><code class="name">var <span class="ident">star_x</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_strehl_result.star_y"><code class="name">var <span class="ident">star_y</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_strehl_result.strehl_value"><code class="name">var <span class="ident">strehl_value</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+</dl>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_value"><code class="flex name class">
+<span>class <span class="ident">hdrl_value</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Structure base class</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class hdrl_value(Structure):
+    _fields_=[(&#39;data&#39;, c_double), (&#39;error&#39;, c_double)]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>_ctypes.Structure</li>
+<li>_ctypes._CData</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="NIX_Testing.HDRL.hdrl_value.data"><code class="name">var <span class="ident">data</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+<dt id="NIX_Testing.HDRL.hdrl_value.error"><code class="name">var <span class="ident">error</span></code></dt>
+<dd>
+<section class="desc"><p>Structure/Union member</p></section>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="NIX_Testing" href="index.html">NIX_Testing</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="NIX_Testing.HDRL.bpm_2d_compute" href="#NIX_Testing.HDRL.bpm_2d_compute">bpm_2d_compute</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.bpm_2d_parameter_create" href="#NIX_Testing.HDRL.bpm_2d_parameter_create">bpm_2d_parameter_create</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.bpm_3d_compute" href="#NIX_Testing.HDRL.bpm_3d_compute">bpm_3d_compute</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.bpm_fit_compute" href="#NIX_Testing.HDRL.bpm_fit_compute">bpm_fit_compute</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.bpm_fit_parameter_create" href="#NIX_Testing.HDRL.bpm_fit_parameter_create">bpm_fit_parameter_create</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.collapse_median" href="#NIX_Testing.HDRL.collapse_median">collapse_median</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.compute_strehl" href="#NIX_Testing.HDRL.compute_strehl">compute_strehl</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.end" href="#NIX_Testing.HDRL.end">end</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.init" href="#NIX_Testing.HDRL.init">init</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="NIX_Testing.HDRL.CPL_BORDER" href="#NIX_Testing.HDRL.CPL_BORDER">CPL_BORDER</a></code></h4>
+<ul class="">
+<li><code><a title="NIX_Testing.HDRL.CPL_BORDER.COPY" href="#NIX_Testing.HDRL.CPL_BORDER.COPY">COPY</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.CPL_BORDER.CROP" href="#NIX_Testing.HDRL.CPL_BORDER.CROP">CROP</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.CPL_BORDER.FILTER" href="#NIX_Testing.HDRL.CPL_BORDER.FILTER">FILTER</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.CPL_BORDER.NOP" href="#NIX_Testing.HDRL.CPL_BORDER.NOP">NOP</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.CPL_BORDER.ZERO" href="#NIX_Testing.HDRL.CPL_BORDER.ZERO">ZERO</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="NIX_Testing.HDRL.CPL_FILTER" href="#NIX_Testing.HDRL.CPL_FILTER">CPL_FILTER</a></code></h4>
+<ul class="two-column">
+<li><code><a title="NIX_Testing.HDRL.CPL_FILTER.AVERAGE" href="#NIX_Testing.HDRL.CPL_FILTER.AVERAGE">AVERAGE</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.CPL_FILTER.AVERAGE_FAST" href="#NIX_Testing.HDRL.CPL_FILTER.AVERAGE_FAST">AVERAGE_FAST</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.CPL_FILTER.CLOSING" href="#NIX_Testing.HDRL.CPL_FILTER.CLOSING">CLOSING</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.CPL_FILTER.DILATION" href="#NIX_Testing.HDRL.CPL_FILTER.DILATION">DILATION</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.CPL_FILTER.EROSION" href="#NIX_Testing.HDRL.CPL_FILTER.EROSION">EROSION</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.CPL_FILTER.LINEAR" href="#NIX_Testing.HDRL.CPL_FILTER.LINEAR">LINEAR</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.CPL_FILTER.LINEAR_SCALE" href="#NIX_Testing.HDRL.CPL_FILTER.LINEAR_SCALE">LINEAR_SCALE</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.CPL_FILTER.MEDIAN" href="#NIX_Testing.HDRL.CPL_FILTER.MEDIAN">MEDIAN</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.CPL_FILTER.MORPHO" href="#NIX_Testing.HDRL.CPL_FILTER.MORPHO">MORPHO</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.CPL_FILTER.MORPHO_SCALE" href="#NIX_Testing.HDRL.CPL_FILTER.MORPHO_SCALE">MORPHO_SCALE</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.CPL_FILTER.OPENING" href="#NIX_Testing.HDRL.CPL_FILTER.OPENING">OPENING</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.CPL_FILTER.STDEV" href="#NIX_Testing.HDRL.CPL_FILTER.STDEV">STDEV</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.CPL_FILTER.STDEV_FAST" href="#NIX_Testing.HDRL.CPL_FILTER.STDEV_FAST">STDEV_FAST</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="NIX_Testing.HDRL.CtypesEnum" href="#NIX_Testing.HDRL.CtypesEnum">CtypesEnum</a></code></h4>
+</li>
+<li>
+<h4><code><a title="NIX_Testing.HDRL.hdrl_bpm_2d_parameter" href="#NIX_Testing.HDRL.hdrl_bpm_2d_parameter">hdrl_bpm_2d_parameter</a></code></h4>
+<ul class="two-column">
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.base" href="#NIX_Testing.HDRL.hdrl_bpm_2d_parameter.base">base</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.border" href="#NIX_Testing.HDRL.hdrl_bpm_2d_parameter.border">border</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.filter" href="#NIX_Testing.HDRL.hdrl_bpm_2d_parameter.filter">filter</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.filter_size_x" href="#NIX_Testing.HDRL.hdrl_bpm_2d_parameter.filter_size_x">filter_size_x</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.filter_size_y" href="#NIX_Testing.HDRL.hdrl_bpm_2d_parameter.filter_size_y">filter_size_y</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.kappa_high" href="#NIX_Testing.HDRL.hdrl_bpm_2d_parameter.kappa_high">kappa_high</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.kappa_low" href="#NIX_Testing.HDRL.hdrl_bpm_2d_parameter.kappa_low">kappa_low</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.maxiter" href="#NIX_Testing.HDRL.hdrl_bpm_2d_parameter.maxiter">maxiter</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.method" href="#NIX_Testing.HDRL.hdrl_bpm_2d_parameter.method">method</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.order_x" href="#NIX_Testing.HDRL.hdrl_bpm_2d_parameter.order_x">order_x</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.order_y" href="#NIX_Testing.HDRL.hdrl_bpm_2d_parameter.order_y">order_y</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.smooth_x" href="#NIX_Testing.HDRL.hdrl_bpm_2d_parameter.smooth_x">smooth_x</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.smooth_y" href="#NIX_Testing.HDRL.hdrl_bpm_2d_parameter.smooth_y">smooth_y</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.steps_x" href="#NIX_Testing.HDRL.hdrl_bpm_2d_parameter.steps_x">steps_x</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_2d_parameter.steps_y" href="#NIX_Testing.HDRL.hdrl_bpm_2d_parameter.steps_y">steps_y</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="NIX_Testing.HDRL.hdrl_bpm_fit_parameter" href="#NIX_Testing.HDRL.hdrl_bpm_fit_parameter">hdrl_bpm_fit_parameter</a></code></h4>
+<ul class="two-column">
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_fit_parameter.base" href="#NIX_Testing.HDRL.hdrl_bpm_fit_parameter.base">base</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_fit_parameter.degree" href="#NIX_Testing.HDRL.hdrl_bpm_fit_parameter.degree">degree</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_fit_parameter.pval" href="#NIX_Testing.HDRL.hdrl_bpm_fit_parameter.pval">pval</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_fit_parameter.rel_chi_h" href="#NIX_Testing.HDRL.hdrl_bpm_fit_parameter.rel_chi_h">rel_chi_h</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_fit_parameter.rel_chi_l" href="#NIX_Testing.HDRL.hdrl_bpm_fit_parameter.rel_chi_l">rel_chi_l</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_bpm_fit_parameter.rel_coef_l" href="#NIX_Testing.HDRL.hdrl_bpm_fit_parameter.rel_coef_l">rel_coef_l</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="NIX_Testing.HDRL.hdrl_strehl_result" href="#NIX_Testing.HDRL.hdrl_strehl_result">hdrl_strehl_result</a></code></h4>
+<ul class="">
+<li><code><a title="NIX_Testing.HDRL.hdrl_strehl_result.computed_background_error" href="#NIX_Testing.HDRL.hdrl_strehl_result.computed_background_error">computed_background_error</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_strehl_result.nbackground_pixels" href="#NIX_Testing.HDRL.hdrl_strehl_result.nbackground_pixels">nbackground_pixels</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_strehl_result.star_background" href="#NIX_Testing.HDRL.hdrl_strehl_result.star_background">star_background</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_strehl_result.star_flux" href="#NIX_Testing.HDRL.hdrl_strehl_result.star_flux">star_flux</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_strehl_result.star_peak" href="#NIX_Testing.HDRL.hdrl_strehl_result.star_peak">star_peak</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_strehl_result.star_x" href="#NIX_Testing.HDRL.hdrl_strehl_result.star_x">star_x</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_strehl_result.star_y" href="#NIX_Testing.HDRL.hdrl_strehl_result.star_y">star_y</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_strehl_result.strehl_value" href="#NIX_Testing.HDRL.hdrl_strehl_result.strehl_value">strehl_value</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="NIX_Testing.HDRL.hdrl_value" href="#NIX_Testing.HDRL.hdrl_value">hdrl_value</a></code></h4>
+<ul class="">
+<li><code><a title="NIX_Testing.HDRL.hdrl_value.data" href="#NIX_Testing.HDRL.hdrl_value.data">data</a></code></li>
+<li><code><a title="NIX_Testing.HDRL.hdrl_value.error" href="#NIX_Testing.HDRL.hdrl_value.error">error</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

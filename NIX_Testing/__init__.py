@@ -11,7 +11,7 @@ from scipy.stats import linregress
 from scipy.special import jv
 from scipy.optimize import leastsq
 from ccdproc import cosmicray_lacosmic
-from HDRL import compute_strehl
+from NIX_Testing.HDRL import compute_strehl
 import multiprocessing as mp
 import pickle
 import re
@@ -23,7 +23,7 @@ class NIX_Base(object):
     def __init__(self, path, test_id=None, verbose=False):
 
         if verbose:
-            print "Loading file ", path.split('/')[-1]
+            print("Loading file " + path.split('/')[-1])
         self.f_name = path.split('/')[-1]
         self.full_path = path
         #self.header = fits.getheader(path)
@@ -112,7 +112,7 @@ class NIX_Spectra(NIX_Base):
             pars['l%02d_sigma' % i].set(value=1.4, max=2.5, min=1.)
             pars['l%02d_amplitude' % i].set(value=1e6)
 
-        print "%20s %20s %20s" % ("Original(nm)", "Measured(nm)", "FWHM(nm)")
+        print("%20s %20s %20s" % ("Original(nm)", "Measured(nm)", "FWHM(nm)"))
         for i in range(nlines):
             if i == 0:
                 mod = model_l[i]
@@ -123,8 +123,8 @@ class NIX_Spectra(NIX_Base):
         out=mod.fit((self.spectra1d-self.continuum(self.wave)), pars, x=self.wave)
 
         for i in range(nlines):
-            print "%20.2f %20.2f %20.5f" % (line_data[i], 
-                out.best_values["l%02d_center" % i], out.best_values["l%02d_sigma" % i]*2.35)
+            print("%20.2f %20.2f %20.5f" % (line_data[i], 
+                out.best_values["l%02d_center" % i], out.best_values["l%02d_sigma" % i]*2.35))
 
 
         #print out.fit_report()
@@ -258,7 +258,7 @@ class NIX_Spectra(NIX_Base):
         
         out = self._polFit(xs, waves, order=order)
 
-        print out.fit_report()
+        print(out.fit_report())
 
         xx = np.arange(2048)
         
@@ -443,7 +443,7 @@ class NIX_Image_List:
 
         table_header =  ['NDX', 'TEST_ID', 'FILENAME']
         table_header.extend([strip_prefix_from_keyword(keyword) for keyword in keywords])
-        print ('%4s' + tbl_fmt) % tuple(table_header)
+        print(('%4s' + tbl_fmt) % tuple(table_header))
         
         ctr = 0 
         for File in self.NIX_Files:
@@ -451,17 +451,17 @@ class NIX_Image_List:
             out_list = [ctr, File.test_id, File.f_name]
             try:
                 out_list.extend([header[keyword] for keyword in keywords])
-                print ('%04d' + tbl_fmt) % tuple(out_list)
+                print(('%04d' + tbl_fmt) % tuple(out_list))
             except:
                 out_list.extend(None for keyword in keywords)
-                print ('%04d' + tbl_fmt) % tuple(out_list)
+                print(('%04d' + tbl_fmt) % tuple(out_list))
             ctr += 1
 
     def printFiltered(self, keywords, tbl_fmt):
 
         table_header =  ['NDX', 'TEST_ID', 'FILENAME']
         table_header.extend([strip_prefix_from_keyword(keyword) for keyword in keywords])
-        print ('%4s' + tbl_fmt) % tuple(table_header)
+        print(('%4s' + tbl_fmt) % tuple(table_header))
         
         ctr = 0 
         for File in self.Filtered:
@@ -469,10 +469,10 @@ class NIX_Image_List:
             out_list = [ctr, File.test_id, File.f_name]
             try:
                 out_list.extend([header[keyword] for keyword in keywords])
-                print ('%04d' + tbl_fmt) % tuple(out_list) 
+                print(('%04d' + tbl_fmt) % tuple(out_list)) 
             except:
                 out_list.extend(None for keyword in keywords)
-                print ('%04d' + tbl_fmt) % tuple(out_list)
+                print(('%04d' + tbl_fmt) % tuple(out_list))
             ctr += 1
 
 
@@ -709,8 +709,12 @@ def getDiffractionPattern(wave, plate_scale, D=8, fill=0.14, size=40):
 
 def HDRL_strehl2(image, wave, r1, r2, pixsc, flux_r, bkg_r1, bkg_r2):
 
-    strehl = compute_strehl(image, wave*1e-6, r1, r2, pixsc*1e-3, flux_r, bkg_r1, bkg_r2) 
+    from NIX_Testing.HDRL2 import compute_strehl
+    strehl = compute_strehl(image, wave*1e-6, r1, r2, pixsc*1e-3, pixsc*1e-3, flux_r, bkg_r1, bkg_r2) 
 
+    #strehl = compute_strehl(image, wave*1e-6, r1, r2, pixsc*1e-3, flux_r, bkg_r1, bkg_r2) 
+
+    #return strehl
     return strehl.strehl_value.data
 
 def HDRL_strehl(f_name, wave, r1, r2, pix_scale, flux_r, bkg_r1, bkg_r2, path="/home/ydallilar/Documents/NIX/scripts/NIX_Testing/strehl" ):
@@ -755,8 +759,8 @@ class ProgressBar:
         t_full = t_elapsed/progress*100
 
         clear_output(wait=True)
-        print "%s ==> [%s%s] %3d%% %s/%s" % (self.function, "#"*bar_done, '-'*(20-bar_done), progress,
-            self._formatTime(t_elapsed), self._formatTime(t_full))
+        print("%s ==> [%s%s] %3d%% %s/%s" % (self.function, "#"*bar_done, '-'*(20-bar_done), progress,
+            self._formatTime(t_elapsed), self._formatTime(t_full)))
 
     def _formatTime(self, t):
 
