@@ -6,25 +6,80 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <stdbool.h>
 #include "cpl_image.h"
 #include "cpl.h"
 #include "hdrl.h"
 
+bool ERROR_IMAGE = false;
+int ERROR_METHOD = 0;
+double GAIN = 5.7;
+double RN_ADU = 4.5;
 
+
+void hdrl_init(){
+	cpl_init(CPL_INIT_DEFAULT);
+}
+
+void hdrl_end(){
+	cpl_end();
+}
+
+hdrl_parameter * hdrl_bpm_fit_parameter_create(int degree, double pval, double rel_chi_l, double rel_chi_h, double rel_coef_l, double rel_coef_h) {
+
+	if (pval != -1){
+		return hdrl_bpm_fit_parameter_create_pval(degree, pval);
+	} else if (rel_chi_l != -1) {
+		return hdrl_bpm_fit_parameter_create_rel_chi(degree, rel_chi_l, rel_chi_h);
+	} else if (rel_coef_l != -1) {
+		return hdrl_bpm_fit_parameter_create_rel_coef(degree, rel_coef_l, rel_coef_h);
+	}
+
+}
+
+hdrl_parameter * hdrl_bpm_2d_parameter_create(cpl_filter_mode filter, cpl_border_mode border,
+											double kappa_low, double kappa_high, int maxiter,
+											int steps_x, int steps_y,
+											int filter_size_x, int filter_size_y,
+											int order_x, int order_y,
+											int smooth_x, int smooth_y){
+
+	printf("%d\n", order_x);
+	if (order_x == -1){
+		return hdrl_bpm_2d_parameter_create_filtersmooth(kappa_low, kappa_high, maxiter, filter, border, smooth_x, smooth_y);
+	} else {
+		return hdrl_bpm_2d_parameter_create_legendresmooth(kappa_low, kappa_high, maxiter,
+															steps_x, steps_y,
+															filter_size_x, filter_size_y,
+															order_x, order_y);
+
+	}
+
+}
 
 hdrl_image * hdrl_image_create_numpy_float64(double * image, int nx, int ny){
 
 	cpl_image * image_cpl, * image_err;
 
 	image_cpl = cpl_image_wrap_double(nx, ny, image);
-	image_err = cpl_image_new(nx, ny, CPL_TYPE_DOUBLE);
 
-	cpl_image_add_scalar(image_err, cpl_image_get_median(image_cpl)/5.);
-	cpl_image_power(image_err, 0.5);
+	if (ERROR_IMAGE == true) {
 
-	//cpl_image_multiply_scalar(image_cpl, 5.);
-	//cpl_image_copy(image_err, image_cpl, 1, 1);
-	//cpl_image_power(image_err, 0.5);
+		if (ERROR_METHOD == 0){
+			image_err = cpl_image_abs_create(image_cpl);
+			cpl_image_multiply_scalar(image_err, GAIN);
+			cpl_image_add_scalar(image_err, RN_ADU*RN_ADU*GAIN*GAIN);
+			cpl_image_power(image_err, 0.5);
+			cpl_image_divide_scalar(image_err, GAIN);
+		} else {
+			image_err = cpl_image_new(nx, ny, CPL_TYPE_DOUBLE);
+			cpl_image_add_scalar(image_err, cpl_image_get_median(image_cpl)*GAIN);
+			cpl_image_power(image_err, 0.5);
+			cpl_image_divide_scalar(image_err, GAIN);
+		}
+	} else {
+		image_err = cpl_image_new(nx, ny, CPL_TYPE_DOUBLE);
+	}
 
 	hdrl_image * image_hdrl;
 
@@ -73,8 +128,6 @@ hdrl_strehl_result hdrl_compute_strehl_numpy_float64(double * image, int nx, int
 		double pixsc_x, double pixsc_y,
 		double flux_r, double bkg_low, double bkg_high){
 
-	cpl_init(CPL_INIT_DEFAULT);
-
 	hdrl_image * image_hdrl;
 	hdrl_strehl_result strehl;
 
@@ -89,35 +142,21 @@ hdrl_strehl_result hdrl_compute_strehl_numpy_float64(double * image, int nx, int
 	hdrl_image_delete(image_hdrl);
 	hdrl_parameter_delete(params);
 
-	cpl_end();
-
 	return strehl;
 
 }
 
-int hdrl_bpm_2d_compute_numpy_float64(double * image, cpl_binary * mask_out, int nx, int ny){
-
-	cpl_init(CPL_INIT_DEFAULT);
+int hdrl_bpm_2d_compute_numpy_float64(double * image, cpl_binary * mask_out, hdrl_parameter * params, int nx, int ny){
 
 	hdrl_image * image_hdrl;
 	cpl_mask * bp_mask;
 	int result;
 
 	image_hdrl = hdrl_image_create_numpy_float64(image, nx, ny);
-
-	hdrl_parameter * params =  hdrl_bpm_2d_parameter_create_filtersmooth(5., 10., 10, CPL_FILTER_MEDIAN, CPL_BORDER_FILTER, 5, 5);
-	//hdrl_parameter * params =  hdrl_bpm_2d_parameter_create_legendresmooth(5., 10., 10, 10, 10, 10, 10, 2, 2);
-
 	bp_mask =  hdrl_bpm_2d_compute(image_hdrl, params);
-
-	result = cpl_mask_save(bp_mask, f_name, NULL, CPL_IO_CREATE);
-
 	memcpy(mask_out, cpl_mask_get_data(bp_mask), sizeof(cpl_binary)*nx*ny);
 
 	hdrl_image_delete(image_hdrl);
-	hdrl_parameter_delete(params);
-
-	cpl_end();
 
 	return result;
 
@@ -125,8 +164,6 @@ int hdrl_bpm_2d_compute_numpy_float64(double * image, cpl_binary * mask_out, int
 
 int hdrl_bpm_3d_compute_numpy_float64(double * images_in, cpl_binary * masks_out, int nx, int ny, int nz){
 	
-	cpl_init(CPL_INIT_DEFAULT);
-
 	hdrl_imagelist * image_list;
 	cpl_imagelist * bpm_3d;
 	cpl_image * image_cpl;
@@ -153,15 +190,13 @@ int hdrl_bpm_3d_compute_numpy_float64(double * images_in, cpl_binary * masks_out
 	hdrl_parameter_delete(params);
 	cpl_imagelist_delete(bpm_3d);
 
-	cpl_end();
-
 	return 0;
 
 }
 
-int hdrl_bpm_fit_compute_numpy_float64(double * images_in, cpl_binary * mask_out, double * exptime, int nx, int ny, int nz){
+int hdrl_bpm_fit_compute_numpy_float64(double * images_in, cpl_binary * mask_out, double * exptime, hdrl_parameter * params, int nx, int ny, int nz){
 	
-	cpl_init(CPL_INIT_DEFAULT);
+	//cpl_init(CPL_INIT_DEFAULT);
 
 	hdrl_imagelist * image_list;
 	cpl_vector *  sample_pos;
@@ -169,8 +204,6 @@ int hdrl_bpm_fit_compute_numpy_float64(double * images_in, cpl_binary * mask_out
 	int * tmp_mask;
 
 	image_list = hdrl_imagelist_create_numpy_float64(images_in, nx, ny, nz);
-
-	hdrl_parameter * params = hdrl_bpm_fit_parameter_create_pval(3., 20.);
 
 	sample_pos = cpl_vector_create_numpy_float64(exptime, nz);
 
@@ -184,17 +217,15 @@ int hdrl_bpm_fit_compute_numpy_float64(double * images_in, cpl_binary * mask_out
 
 	
 	hdrl_imagelist_delete(image_list);
-	hdrl_parameter_delete(params);
+	//hdrl_parameter_delete(params);
 
-	cpl_end();
+	//cpl_end();
 
 	return 0;
 
 }
 
 int hdrl_collapse_median_numpy_float64(double * images_in, double * image_out, int nx, int ny, int nz){
-
-	cpl_init(CPL_INIT_DEFAULT);
 
 	hdrl_imagelist * image_list;
 	hdrl_image * image_hdrl;
@@ -212,8 +243,6 @@ int hdrl_collapse_median_numpy_float64(double * images_in, double * image_out, i
 	hdrl_imagelist_delete(image_list);
 	cpl_image_unwrap(image_cpl);
 	free(image_p);
-
-	cpl_end();
 	
 	return 0;
 
