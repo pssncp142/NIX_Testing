@@ -10,7 +10,13 @@ Welcome to NIX_Testing's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+asdasdasd
 
+.. automodule:: NIX_Testing
+    :members:
+
+.. automodule:: NIX_Testing.HDRL2
+    :members:
 
 Indices and tables
 ==================
