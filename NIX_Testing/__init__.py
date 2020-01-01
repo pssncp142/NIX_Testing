@@ -11,7 +11,7 @@ from scipy.stats import linregress
 from scipy.special import jv
 from scipy.optimize import leastsq
 from ccdproc import cosmicray_lacosmic
-from NIX_Testing.HDRL import compute_strehl
+from NIX_Testing.HDRL2 import compute_strehl
 import multiprocessing as mp
 import pickle
 import re

@@ -35,6 +35,7 @@ class CPL_FILTER(CtypesEnum):
     MORPHO_SCALE=12
 
 so_name = pkg_resources.resource_filename(__name__, 'lib/libhdrldemo.so')
+print(so_name)
 hdrl = npct.load_library(so_name, ".")
 
 arr_1d_dbl = npct.ndpointer(dtype=np.float64, ndim=1, flags='CONTIGUOUS') 

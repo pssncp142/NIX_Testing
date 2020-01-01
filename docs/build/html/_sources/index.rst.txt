@@ -3,22 +3,23 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to NIX_Testing's documentation!
-***************************************
+NIX_Testing Documentation
+*************************
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    :maxdepth: 2
 
-NIX_Testing
-===========
+    intro
+    NIXTesting
+    HDRL
 
-.. automodule:: NIX_Testing
-    :members:
 
-NIX_Testing.HDRL2
-=================
 
-.. automodule:: NIX_Testing.HDRL2
-    :members:
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
 

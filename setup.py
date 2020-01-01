@@ -6,7 +6,7 @@ import os, numpy
 
 
 include_dirs = [numpy.get_include(), '/usr/include/', '/home/ydallilar/.software/local/include/', 'hdrldemo-1.2.0/hdrl/']
-library_dirs = ['/usr/lib/', '/home/ydallilar/.software/local/lib/', 'hdrl/.lib/']
+library_dirs = ['/usr/lib/', '/opt/miniconda2/envs/py3/lib/', 'hdrl/.lib/']
 libraries = ['cplcore', 'cpldrs', 'cplui', 'cpldfs', 'cext', 
         'fftw3', 'wcs', 'm', 'gsl', 'gslcblas']
 extra_link_args = ['-lgomp']
@@ -28,10 +28,10 @@ class customBuild(build):
 
     def run(self):
 
-        configure_cmd = ["./configure", 
-                "--prefix=/home/ydallilar/.software/local"
-                "--with-cpl=/home/ydallilar/.software/local",
-                "--with-gsl=/home/ydallilar/.software/local"]
+        configure_cmd = ["./configure"] 
+                #"--prefix=/home/ydallilar/.software/local"
+                #"--with-cpl=/opt/miniconda2/envs/py3/lib/",
+                #"--with-gsl=/usr"]
         build_cmd = ["make"]
         hack_cmd = ["sed", "-i", "s/hdrldemo_utils/hdrldemo_python/g", "hdrldemo/Makefile"]
 
@@ -66,9 +66,7 @@ setup(
     url='https://github.com/pssncp142/NIX_Testing',
     description='A python module for analyzing NIX Testing data',
     long_description=open('README.md').read(),
-    install_requires=[
-        "numpy", "matplotlib", "sep", "astropy"
-    ],
+    install_requires=[],
     cmdclass = {'build': customBuild}
 )
 

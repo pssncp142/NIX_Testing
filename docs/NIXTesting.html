@@ -1,0 +1,394 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>NIX_Testing &mdash; NIX_Testing 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="NIX_Testing.HDRL2" href="HDRL.html" />
+    <link rel="prev" title="Introduction" href="intro.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> NIX_Testing
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html#install">Install</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">NIX_Testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#nix-testing-data-types">NIX_Testing Data Types</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="HDRL.html">NIX_Testing.HDRL2</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">NIX_Testing</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>NIX_Testing</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/NIXTesting.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="nix-testing">
+<h1>NIX_Testing<a class="headerlink" href="#nix-testing" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="nix-testing-data-types">
+<h2>NIX_Testing Data Types<a class="headerlink" href="#nix-testing-data-types" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="NIX_Testing.NIX_Base">
+<em class="property">class </em><code class="sig-prename descclassname">NIX_Testing.</code><code class="sig-name descname">NIX_Base</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">test_id=None</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Base" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="NIX_Testing.NIX_Base.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">test_id=None</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Base.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Base.getImage">
+<code class="sig-name descname">getImage</code><span class="sig-paren">(</span><em class="sig-param">hdu=None</em>, <em class="sig-param">mask=None</em>, <em class="sig-param">dark=None</em>, <em class="sig-param">linearize=False</em>, <em class="sig-param">gain=None</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Base.getImage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Base.plotImage">
+<code class="sig-name descname">plotImage</code><span class="sig-paren">(</span><em class="sig-param">mask=None</em>, <em class="sig-param">dark=None</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Base.plotImage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NIX_Testing.NIX_Image">
+<em class="property">class </em><code class="sig-prename descclassname">NIX_Testing.</code><code class="sig-name descname">NIX_Image</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">test_id=None</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Image" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="NIX_Testing.NIX_Image.f_name">
+<code class="sig-name descname">f_name</code><a class="headerlink" href="#NIX_Testing.NIX_Image.f_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NIX_Testing.NIX_Image.full_path">
+<code class="sig-name descname">full_path</code><a class="headerlink" href="#NIX_Testing.NIX_Image.full_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Image.getMedian">
+<code class="sig-name descname">getMedian</code><span class="sig-paren">(</span><em class="sig-param">dark=None</em>, <em class="sig-param">mask=None</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Image.getMedian" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Image.getObjects">
+<code class="sig-name descname">getObjects</code><span class="sig-paren">(</span><em class="sig-param">mask=None</em>, <em class="sig-param">search=None</em>, <em class="sig-param">thresh=500</em>, <em class="sig-param">minarea=20</em>, <em class="sig-param">force=False</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Image.getObjects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NIX_Testing.NIX_Image.header">
+<code class="sig-name descname">header</code><a class="headerlink" href="#NIX_Testing.NIX_Image.header" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Image.plotDistortionPSF">
+<code class="sig-name descname">plotDistortionPSF</code><span class="sig-paren">(</span><em class="sig-param">grid=5</em>, <em class="sig-param">perc=95</em>, <em class="sig-param">mask=None</em>, <em class="sig-param">dark=None</em>, <em class="sig-param">linearize=False</em>, <em class="sig-param">title=None</em>, <em class="sig-param">clean=True</em>, <em class="sig-param">strehl=True</em>, <em class="sig-param">strehlWave=2.2</em>, <em class="sig-param">out_ims=None</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Image.plotDistortionPSF" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Image.plotObjects">
+<code class="sig-name descname">plotObjects</code><span class="sig-paren">(</span><em class="sig-param">mask=None</em>, <em class="sig-param">figsize=None</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Image.plotObjects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NIX_Testing.NIX_Image.test_id">
+<code class="sig-name descname">test_id</code><a class="headerlink" href="#NIX_Testing.NIX_Image.test_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NIX_Testing.NIX_Image_List">
+<em class="property">class </em><code class="sig-prename descclassname">NIX_Testing.</code><code class="sig-name descname">NIX_Image_List</code><span class="sig-paren">(</span><em class="sig-param">config</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Image_List" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="NIX_Testing.NIX_Image_List.doBadPixelMask">
+<code class="sig-name descname">doBadPixelMask</code><span class="sig-paren">(</span><em class="sig-param">thresh=20</em>, <em class="sig-param">out=None</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Image_List.doBadPixelMask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Image_List.doLinearRegress">
+<code class="sig-name descname">doLinearRegress</code><span class="sig-paren">(</span><em class="sig-param">exps</em>, <em class="sig-param">select</em>, <em class="sig-param">cpu=1</em>, <em class="sig-param">dark=None</em>, <em class="sig-param">mask=None</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Image_List.doLinearRegress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Image_List.filter">
+<code class="sig-name descname">filter</code><span class="sig-paren">(</span><em class="sig-param">val</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Image_List.filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Image_List.getHeaderValue">
+<code class="sig-name descname">getHeaderValue</code><span class="sig-paren">(</span><em class="sig-param">keyword</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Image_List.getHeaderValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Image_List.getImage">
+<code class="sig-name descname">getImage</code><span class="sig-paren">(</span><em class="sig-param">select=None</em>, <em class="sig-param">mask=None</em>, <em class="sig-param">dark=None</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Image_List.getImage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Image_List.getMedian">
+<code class="sig-name descname">getMedian</code><span class="sig-paren">(</span><em class="sig-param">mask=None</em>, <em class="sig-param">dark=None</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Image_List.getMedian" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Image_List.getObjects">
+<code class="sig-name descname">getObjects</code><span class="sig-paren">(</span><em class="sig-param">mask=None</em>, <em class="sig-param">search=None</em>, <em class="sig-param">sepdict=None</em>, <em class="sig-param">thresh=500</em>, <em class="sig-param">minarea=20</em>, <em class="sig-param">force=False</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Image_List.getObjects" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Image_List.getPixelVariance">
+<code class="sig-name descname">getPixelVariance</code><span class="sig-paren">(</span><em class="sig-param">mask=None</em>, <em class="sig-param">shift=True</em>, <em class="sig-param">gain=None</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Image_List.getPixelVariance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Image_List.loadFiles">
+<code class="sig-name descname">loadFiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Image_List.loadFiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Image_List.medianCombine">
+<code class="sig-name descname">medianCombine</code><span class="sig-paren">(</span><em class="sig-param">out=None</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Image_List.medianCombine" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Image_List.printFiltered">
+<code class="sig-name descname">printFiltered</code><span class="sig-paren">(</span><em class="sig-param">keywords</em>, <em class="sig-param">tbl_fmt</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Image_List.printFiltered" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Image_List.printTable">
+<code class="sig-name descname">printTable</code><span class="sig-paren">(</span><em class="sig-param">keywords</em>, <em class="sig-param">tbl_fmt</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Image_List.printTable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="NIX_Testing.NIX_Spectra">
+<em class="property">class </em><code class="sig-prename descclassname">NIX_Testing.</code><code class="sig-name descname">NIX_Spectra</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">test_id=None</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Spectra" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="NIX_Testing.NIX_Spectra.calibrate">
+<code class="sig-name descname">calibrate</code><span class="sig-paren">(</span><em class="sig-param">ref_lines=None</em>, <em class="sig-param">mask=None</em>, <em class="sig-param">dark=None</em>, <em class="sig-param">order=2</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Spectra.calibrate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Spectra.extract">
+<code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">ref_lines</em>, <em class="sig-param">mask=None</em>, <em class="sig-param">dark=None</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Spectra.extract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NIX_Testing.NIX_Spectra.f_name">
+<code class="sig-name descname">f_name</code><a class="headerlink" href="#NIX_Testing.NIX_Spectra.f_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NIX_Testing.NIX_Spectra.full_path">
+<code class="sig-name descname">full_path</code><a class="headerlink" href="#NIX_Testing.NIX_Spectra.full_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Spectra.getOrderTracing">
+<code class="sig-name descname">getOrderTracing</code><span class="sig-paren">(</span><em class="sig-param">bright_line=None</em>, <em class="sig-param">mask=None</em>, <em class="sig-param">dark=None</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Spectra.getOrderTracing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Spectra.getSpectra1D">
+<code class="sig-name descname">getSpectra1D</code><span class="sig-paren">(</span><em class="sig-param">bright_line=None</em>, <em class="sig-param">mask=None</em>, <em class="sig-param">dark=None</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Spectra.getSpectra1D" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NIX_Testing.NIX_Spectra.header">
+<code class="sig-name descname">header</code><a class="headerlink" href="#NIX_Testing.NIX_Spectra.header" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NIX_Testing.NIX_Spectra.subtractContinuum">
+<code class="sig-name descname">subtractContinuum</code><span class="sig-paren">(</span><em class="sig-param">method='polynomial'</em>, <em class="sig-param">order=5</em>, <em class="sig-param">smooth=6</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.NIX_Spectra.subtractContinuum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NIX_Testing.NIX_Spectra.test_id">
+<code class="sig-name descname">test_id</code><a class="headerlink" href="#NIX_Testing.NIX_Spectra.test_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="HDRL.html" class="btn btn-neutral float-right" title="NIX_Testing.HDRL2" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="intro.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Yigit Dallilar
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -4,3 +4,4 @@ workdir/out/*
 *-checkpoint.ipynb
 *fits
 strehl/*
+*.so
