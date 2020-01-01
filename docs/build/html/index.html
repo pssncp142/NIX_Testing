@@ -47,40 +47,36 @@
 <code class="sig-prename descclassname">NIX_Testing.HDRL2.</code><code class="sig-name descname">bpm_fit_compute</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.HDRL2.bpm_fit_compute" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="function">
 <dt>
-<code class="sig-name descname">bpm_fit_compute(image, exptime, [method, degree, pval, rel_chi_low, \</code></dt>
-<dt>
-<code class="sig-name descname">rel_chi_high, rel_coef_low, rel_coef_high])**</code></dt>
+<code class="sig-name descname">bpm_fit_compute(image, exptime, [method, degree, pval, rel_chi_low, rel_chi_high, rel_coef_low, rel_coef_high])**</code></dt>
 <dd></dd></dl>
 
 <p>A python wrapper around ‘hdrl_bpm_fit_compute’ function. ‘hdrl_bpm_fit_parameter’ is created inside the wrapper based on the keyword values.</p>
 <p>Computes bad pixel mask from a set of flat images with a different exposure time. The algorithm performs fit on a stack of images and finds outliers using one of three defined methods.</p>
-<dl class="simple">
-<dt>images<span class="classifier">(N,N,N,) ndarray</span></dt><dd><p>Stack of images - along the third axis.</p>
-</dd>
-<dt>exptime<span class="classifier">(N,) ndarray</span></dt><dd><p>Exptime corresponding to images. Should have same length as third axis of <strong>images</strong>.</p>
-</dd>
-<dt>method<span class="classifier">str</span></dt><dd><p>Method used to determine bad pixels. If given method is none of the belowfunction returns <em>Py_None</em>. Accepted values are (default=’pval’):</p>
-<ul class="simple">
-<li><p>‘pval’    : threshold on the p-values.</p></li>
-<li><p>‘rel_chi’ : sigma cut on the relative chi values.</p></li>
-<li><p>‘rel_coef’: sigma cut on the relative coefficients of polynomial fit.</p></li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>images</strong> (<em>(</em><em>N</em><em>,</em><em>N</em><em>,</em><em>N</em><em>,</em><em>) </em><em>ndarray</em>) – Stack of images - along the third axis.</p></li>
+<li><p><strong>exptime</strong> (<em>(</em><em>N</em><em>,</em><em>) </em><em>ndarray</em>) – Exptime corresponding to images. Should have same length as third axis of <strong>images</strong>.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – <p>Method used to determine bad pixels. If given method is none of the belowfunction returns <em>Py_None</em>. Accepted values are (default=’pval’):</p>
+<ul>
+<li><p>’pval’    : threshold on the p-values.</p></li>
+<li><p>’rel_chi’ : sigma cut on the relative chi values.</p></li>
+<li><p>’rel_coef’: sigma cut on the relative coefficients of polynomial fit.</p></li>
+</ul>
+</p></li>
+<li><p><strong>degree</strong> (<em>int</em><em>, </em><em>optional</em>) – Degree of polynomial to fit. (default=1)</p></li>
+<li><p><strong>pval</strong> (<em>double</em><em>, </em><em>optional</em>) – Threshold in p-values. Enabled with <em>pval</em> (default=10.)</p></li>
+<li><p><strong>rel_chi_low</strong> (<em>double</em><em>, </em><em>optional</em>) – Low threshold in relative chi values. Enabled with <em>rel_chi</em> (default=5.)</p></li>
+<li><p><strong>rel_chi_low</strong> – Low threshold in relative chi values. Enabled with <em>rel_chi</em> (default=10.)</p></li>
+<li><p><strong>rel_coef_low</strong> (<em>double</em><em>, </em><em>optional</em>) – Low threshold in relative coefficients. Enabled with <em>rel_coef</em> (default=5.)</p></li>
+<li><p><strong>rel_coef_low</strong> – Low threshold in relative coefficients. Enabled with <em>rel_coef</em> (default=10.)</p></li>
 </ul>
 </dd>
-<dt>degree<span class="classifier">int, optional</span></dt><dd><p>Degree of polynomial to fit. (default=1)</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>bp_mask</strong> – Output of <em>hdrl_bpm_fit_compute</em> converted to a numpy array. Good pixels are marked with 0 and bad pixels with 1. When <em>rel_coef</em> method used, algorithm computes bad pixels for each coefficient of the polynomial. Hence, the resulting bad pixel map is [2^0(0th)+2^1(1st)+2^2(2nd)+..] where bad pixel map derived from Nth order coefficients is given by (Nth). If the function fails, it returns <em>Py_None</em> instead of throwing an error.</p>
 </dd>
-<dt>pval<span class="classifier">double, optional</span></dt><dd><p>Threshold in p-values. Enabled with <em>pval</em> (default=10.)</p>
-</dd>
-<dt>rel_chi_low<span class="classifier">double, optional</span></dt><dd><p>Low threshold in relative chi values. Enabled with <em>rel_chi</em> (default=5.)</p>
-</dd>
-<dt>rel_chi_low<span class="classifier">double, optional</span></dt><dd><p>Low threshold in relative chi values. Enabled with <em>rel_chi</em> (default=10.)</p>
-</dd>
-<dt>rel_coef_low<span class="classifier">double, optional</span></dt><dd><p>Low threshold in relative coefficients. Enabled with <em>rel_coef</em> (default=5.)</p>
-</dd>
-<dt>rel_coef_low<span class="classifier">double, optional</span></dt><dd><p>Low threshold in relative coefficients. Enabled with <em>rel_coef</em> (default=10.)</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>bp_mask<span class="classifier">(N,N) ndarray</span></dt><dd><p>Output of <em>hdrl_bpm_fit_compute</em> converted to a numpy array. Good pixels are marked with 0 and bad pixels with 1. When <em>rel_coef</em> method used, algorithm computes bad pixels for each coefficient of the polynomial. Hence, the resulting bad pixel map is [2^0(0th)+2^1(1st)+2^2(2nd)+..] where bad pixel map derived from Nth order coefficients is given by (Nth). If the function fails, it returns <em>Py_None</em> instead of throwing an error.</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(N,N) ndarray</p>
 </dd>
 </dl>
 </dd></dl>
