@@ -4,23 +4,21 @@
    contain the root `toctree` directive.
 
 Welcome to NIX_Testing's documentation!
-=======================================
+***************************************
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-asdasdasd
+NIX_Testing
+===========
 
 .. automodule:: NIX_Testing
     :members:
 
+NIX_Testing.HDRL2
+=================
+
 .. automodule:: NIX_Testing.HDRL2
     :members:
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
