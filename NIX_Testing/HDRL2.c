@@ -14,8 +14,9 @@
 /*ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo*/
 // Documentation
 PyDoc_STRVAR(mod_doc, "Some utility functions from HDRL to be used with numpy arrays.\n");
+
 PyDoc_STRVAR(bpm_fit_compute_doc, 
-"**bpm_fit_compute(image, exptime, [method, degree, pval, rel_chi_low, rel_chi_high, rel_coef_low, rel_coef_high])**\n"
+"bpm_fit_compute(image, exptime, [method, degree])\n"
 "\n"
 "A python wrapper around 'hdrl_bpm_fit_compute' function. 'hdrl_bpm_fit_parameter' is created inside the wrapper "
 "based on the keyword values.\n"
@@ -58,6 +59,24 @@ PyDoc_STRVAR(bpm_fit_compute_doc,
 "[2^0(0th)+2^1(1st)+2^2(2nd)+..] where bad pixel map derived from Nth order coefficients "
 "is given by (Nth). If the function fails, it returns *Py_None* instead of "
 "throwing an error."
+"\n");
+
+PyDoc_STRVAR(bpm_interpolate_doc, 
+"A python wrapper around CPL function "
+"`cpl_detector_interpolate_rejected <https://www.eso.org/sci/software/cpl/reference/group__cpl__detector.html#ga83fd1a1d48eeeb444d6a1a84c6d5e2de>`_ \n"
+"\n" 
+"Parameters\n"
+"----------\n"
+"\n"
+"image : (N,N,) ndarray\n"
+"\tAn image.\n"
+"bp_mask : (N,N,) ndarray\n"
+"\tBad pixel masks indicating pixels to interpolate.\n"
+"\n"
+"Returns\n"
+"-------\n"
+"out : (N,N,) ndarray\n"
+"\tReturns an image in which bad pixels are interpolated."
 "\n");
 
 
@@ -244,10 +263,38 @@ static PyObject * strehlResult_initFromOriginal(hdrl_strehl_result result){
 
 /*ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo*/
 
+bool ERROR_IMAGE = true;
+int ERROR_METHOD = 0;
+double GAIN = 5.7;
+double RN_ADU = 4.5;
+
+char * NAME_ERROR_IMAGE = "ERROR_IMAGE";
+char * NAME_ERROR_METHOD = "ERROR_METHOD";
+char * NAME_GAIN = "GAIN";
+char * NAME_RN_ADU = "RN_ADU";
+
+int _update_globals(PyObject * pMod){
+
+    PyObject *obj;
+
+    GAIN = PyFloat_AsDouble(PyDict_GetItemString(PyModule_GetDict(pMod), NAME_GAIN));
+    printf("Gain : %f\n", GAIN);
+    RN_ADU = PyFloat_AsDouble(PyDict_GetItemString(PyModule_GetDict(pMod), NAME_RN_ADU));
+    printf("RN_ADU : %f\n", RN_ADU);
+    ERROR_METHOD = PyLong_AsLong(PyDict_GetItemString(PyModule_GetDict(pMod), NAME_ERROR_METHOD));
+    printf("METHOD : %d\n", ERROR_METHOD);
+    obj = PyDict_GetItemString(PyModule_GetDict(pMod), NAME_ERROR_IMAGE);
+    if (PyBool_Check(obj)){ERROR_IMAGE = obj == Py_True ? true : false;}
+    else {ERROR_IMAGE = PyLong_AsLong(obj);}
+    printf("%d\n", ERROR_IMAGE);
+
+    return 0;
+}
+
+/*ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo*/
+
 cpl_image * _cpl_image_from_numpy2d(PyArrayObject* arr, npy_intp * len){
 
-    printf("%d %d\n", len[0], len[1]);
-    //PyArrayObject * tmp = PyArray_GETCONTIGUOUS(arr);
 	cpl_image * c_im = cpl_image_new(len[0], len[1], CPL_TYPE_DOUBLE);
 	memcpy((double *) cpl_image_get_data(c_im), 
 			(double *) PyArray_DATA(arr), 
@@ -256,9 +303,18 @@ cpl_image * _cpl_image_from_numpy2d(PyArrayObject* arr, npy_intp * len){
 
 }
 
+cpl_mask * _cpl_mask_from_numpy2d(PyArrayObject* arr, npy_intp * len){
+
+	cpl_mask * c_im = cpl_mask_new(len[0], len[1]);
+    memcpy((cpl_binary *) cpl_mask_get_data(c_im), 
+			(cpl_binary *) PyArray_DATA(arr), 
+			sizeof(cpl_binary)*len[0]*len[1]);
+    return c_im;
+
+}
+
 cpl_vector * _cpl_vector_from_numpy1d(PyArrayObject* arr, npy_intp * len){
 
-    //PyArrayObject * tmp = PyArray_GETCONTIGUOUS(arr);
 	cpl_vector * c_vec = cpl_vector_new(len[0]);
 	memcpy((double *) cpl_vector_get_data(c_vec), 
 			(double *) PyArray_DATA(arr), 
@@ -282,10 +338,10 @@ hdrl_image * _hdrl_image_from_numpy2d(PyArrayObject* arr, npy_intp *len){
     cpl_image * c_im = _cpl_image_from_numpy2d(arr, len);
     cpl_image * c_err;
 
-    bool ERROR_IMAGE = true;
-    int ERROR_METHOD = 0;
-    double GAIN = 5.7;
-    double RN_ADU = 4.5;
+    //bool ERROR_IMAGE = true;
+    //int ERROR_METHOD = 0;
+    //double GAIN = 5.7;
+    //double RN_ADU = 4.5;
 
 	if (ERROR_IMAGE == true) {
 
@@ -345,45 +401,45 @@ hdrl_imagelist * _hdrl_imagelist_from_numpy2d(PyArrayObject* arr, npy_intp *len)
 
 }
 
-
-hdrl_parameter * hdrl_bpm_2d_parameter_create(cpl_filter_mode filter, cpl_border_mode border,
-											double kappa_low, double kappa_high, int maxiter,
-											int steps_x, int steps_y,
-											int filter_size_x, int filter_size_y,
-											int order_x, int order_y,
-											int smooth_x, int smooth_y){
-
-	if (order_x == -1){
-		return hdrl_bpm_2d_parameter_create_filtersmooth(kappa_low, kappa_high, maxiter, filter, border, smooth_x, smooth_y);
-	} else {
-		return hdrl_bpm_2d_parameter_create_legendresmooth(kappa_low, kappa_high, maxiter,
-															steps_x, steps_y,
-															filter_size_x, filter_size_y,
-															order_x, order_y);
-
-	}
-
-}
-
 static PyObject* test(PyObject* self, PyObject* args){
 
-    return hdrlValue_initFromC(4, 3);
+    PyObject * arr1, *arr2;
+    char * f_name;
+
+     if (!PyArg_ParseTuple(args, "OOs", &arr1, &arr2, &f_name)){
+        return NULL;
+	}
+
+    PyObject *mod, *func, *tuple, *res;
+
+    mod = PyImport_ImportModule("numpy");
+    func = PyObject_GetAttrString(mod, f_name);
+    tuple = Py_BuildValue("(O,O)", arr1, arr2);
+    res = PyEval_CallObject(func, tuple);
+
+    Py_DECREF(mod);
+    Py_DECREF(func);
+    Py_DECREF(tuple);
+
+    return res;
 
 }
 
 static PyObject* bpm_fit_compute(PyObject* self, PyObject* args, PyObject* keywds){
   
-	PyObject * arr_in, *exptime;
-    PyArrayObject *arr_out;
+    _update_globals(self);
+
+	PyObject * arr_in = NULL, *exptime = NULL;
+    PyArrayObject *arr_out = NULL;
     double factor;
     npy_intp *len, *len2;
-	cpl_image *c_im;
-    cpl_vector * c_vec;
-    cpl_mask * mask;
-    hdrl_imagelist *imlist;
-    hdrl_parameter * params;
-    hdrl_image * im;
-
+	cpl_image *c_im = NULL;
+    cpl_vector * c_vec = NULL;
+    cpl_mask * mask = NULL;
+    hdrl_imagelist *imlist = NULL;
+    hdrl_parameter *params = NULL;
+    int res;
+    
     int degree=1; 
     double pval=10., rel_chi_low=3., rel_chi_high=10., rel_coef_low=3., rel_coef_high=10.;
     char * method = "pval";
@@ -398,9 +454,9 @@ static PyObject* bpm_fit_compute(PyObject* self, PyObject* args, PyObject* keywd
                                                                     &degree, &pval, 
                                                                     &rel_chi_low, &rel_chi_high,
                                                                     &rel_coef_low, &rel_coef_high))
+        return NULL;
 
-	len = PyArray_SHAPE(arr_in);
-    len2 = PyArray_SHAPE(exptime);
+
 	cpl_init(CPL_INIT_DEFAULT);
 
     if(strcmp(method, "pval") == 0){
@@ -410,42 +466,43 @@ static PyObject* bpm_fit_compute(PyObject* self, PyObject* args, PyObject* keywd
 	} else if (strcmp(method, "rel_coef") == 0) {
 		params = hdrl_bpm_fit_parameter_create_rel_coef(degree, rel_coef_low, rel_coef_high);
 	} else {
-        printf("Undefined Method.\n");
-        cpl_end();
-        Py_RETURN_NONE;
+        PyErr_Format(PyExc_ValueError, "Undefined method : %s", method);
+        goto except;
     }
-    
-    PyArrayObject * tmp = PyArray_FROM_OTF(arr_in, NPY_FLOAT64, NPY_ARRAY_C_CONTIGUOUS);
-    len = PyArray_SHAPE(tmp);
-    len2 = PyArray_SHAPE(exptime);
+    if(params == NULL){
+        PyErr_Format(PyExc_ValueError, "CPL Error (%d): %s", cpl_error_get_code(), cpl_error_get_message());
+        goto except;
+    }
+
+    len = PyArray_SHAPE(arr_in);
+    len2 = PyArray_SHAPE(exptime);    
+    PyArrayObject * tmp = PyArray_FROM_OTF(arr_in, NPY_FLOAT64, NPY_ARRAY_IN_ARRAY);
     imlist = _hdrl_imagelist_from_numpy2d(tmp, len);
     Py_DECREF(tmp);
-
-    tmp = PyArray_FROM_OTF(exptime, NPY_FLOAT64, NPY_ARRAY_C_CONTIGUOUS);
+    tmp = PyArray_FROM_OTF(exptime, NPY_FLOAT64, NPY_ARRAY_IN_ARRAY);
     c_vec = _cpl_vector_from_numpy1d(tmp, len2);
     Py_DECREF(tmp);
-
-    int res;
+    
     Py_BEGIN_ALLOW_THREADS
     res = hdrl_bpm_fit_compute(params, imlist, c_vec, &c_im);
     Py_END_ALLOW_THREADS
-    printf("fit_compute res : %d\n", res);
+    if(res > 0){
+        PyErr_Format(PyExc_ValueError, "CPL Error (%d): %s", cpl_error_get_code(), cpl_error_get_message());
+        goto except;
+    }
 
     arr_out = PyArray_SimpleNew(2, len, NPY_INT);
     memcpy((int*) PyArray_DATA(arr_out), (int*) cpl_image_get_data(c_im), sizeof(int)*len[0]*len[1]);
 
-    //cpl_binary * tmp1 = (cpl_binary*) PyArray_DATA(arr_out);
-    //int * tmp2 = (int*) cpl_image_get_data(c_im);
-    //for (int i=0; i<len[0]*len[1]; i++){
-    //    tmp1[i] = (cpl_binary) tmp2[i];
-   // }
- 
-    hdrl_imagelist_delete(imlist);
-    hdrl_parameter_delete(params);
-    cpl_image_delete(c_im);
- 
+    goto finally;
+except:
+    arr_out = NULL;
+finally:
+    if(!imlist) hdrl_imagelist_delete(imlist);
+    if(!params) hdrl_parameter_delete(params);
+    if(!c_vec) cpl_vector_delete(c_vec);
+    if(!c_im) cpl_image_delete(c_im);
 	cpl_end();
-
     return PyArray_Return(arr_out);
 
 }
@@ -453,8 +510,8 @@ static PyObject* bpm_fit_compute(PyObject* self, PyObject* args, PyObject* keywd
 
 static PyObject* bpm_2d_compute(PyObject* self, PyObject* args, PyObject* keywds){
   
-    PyObject *arr_in;
-    PyArrayObject *arr_out;
+    PyObject *arr_in = NULL;
+    PyArrayObject *arr_out = NULL;
     npy_intp * len;
 
     hdrl_image * im;
@@ -488,20 +545,136 @@ static PyObject* bpm_2d_compute(PyObject* self, PyObject* args, PyObject* keywds
         return NULL;
 
     len = PyArray_SHAPE(arr_in);
-    printf("%d %d\n", len[0], len[1]);
 
 	cpl_init(CPL_INIT_DEFAULT);
 
-    if (strcmp(method, "filter") == 0) 
-        order_x = -1;
+    if (strcmp(method, "filter") == 0) {
+        params = hdrl_bpm_2d_parameter_create_filtersmooth(kappa_low, kappa_high, maxiter, filter, 
+                                                            border, smooth_x, smooth_y);
+    } else if (strcmp(method, "legendre") == 0){
+        params = hdrl_bpm_2d_parameter_create_legendresmooth(kappa_low, kappa_high, maxiter,
+															steps_x, steps_y,
+															filter_size_x, filter_size_y,
+															order_x, order_y);
+    } else {
+        PyErr_Format(PyExc_ValueError, "Undefined method : %s", method);
+        goto except;
+    }
+    if(params == NULL){
+        PyErr_Format(PyExc_ValueError, "CPL Error (%d): %s", cpl_error_get_code(), cpl_error_get_message());
+        goto except;
+    }
 
-    params = hdrl_bpm_2d_parameter_create(filter, border,
-										kappa_low, kappa_high, maxiter,
-										steps_x, steps_y,
-										filter_size_x, filter_size_y,
-										order_x, order_y,
-										smooth_x, smooth_y);
+    PyArrayObject * tmp = PyArray_FROM_OTF(arr_in, NPY_FLOAT64, NPY_ARRAY_IN_ARRAY);
+	im = _hdrl_image_from_numpy2d(tmp, len);
+    Py_DECREF(tmp);
 
+    Py_BEGIN_ALLOW_THREADS
+    mask = hdrl_bpm_2d_compute(im, params);
+    Py_END_ALLOW_THREADS
+    if (mask == NULL) {
+        PyErr_Format(PyExc_ValueError, "CPL Error (%d): %s", cpl_error_get_code(), cpl_error_get_message());
+        goto except;
+    }
+
+    arr_out = PyArray_SimpleNew(2, len, NPY_UBYTE);
+    memcpy((cpl_binary*) PyArray_DATA(arr_out), (cpl_binary *) cpl_mask_get_data(mask), sizeof(cpl_binary)*len[0]*len[1]);
+
+    goto finally;
+
+except:
+    arr_out = NULL;
+finally:
+    if(!im) {hdrl_image_delete(im);}
+    if(!params) {hdrl_parameter_delete(params);}
+    if(!mask) {cpl_mask_delete(mask);}
+    cpl_end();
+    return PyArray_Return(arr_out);
+}
+
+static PyObject* bpm_interpolate(PyObject* self, PyObject* args, PyObject* keywds){
+  
+    PyObject *arr_in, *arr2_in;
+    PyArrayObject *arr_out;
+    npy_intp * len, * len2;
+
+    cpl_image * im;
+    cpl_mask * mask;
+
+    static char *kwlist[] = {"image", "bp_mask", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO", kwlist, &arr_in, &arr2_in))
+        return NULL;
+
+	cpl_init(CPL_INIT_DEFAULT);
+
+    len = PyArray_SHAPE(arr_in);
+    len2 = PyArray_SHAPE(arr2_in);
+    if ((len[0] != len2[0]) || (len[1] != len2[1])){
+        PyErr_Format(PyExc_ValueError, "Shape of the image (%ld,%ld) and mask (%ld,%ld) does not match",
+                                        len[0], len[1], len2[0], len2[1]);
+        goto except;
+    }
+
+    PyArrayObject * tmp = PyArray_FROM_OTF(arr_in, NPY_FLOAT64, NPY_ARRAY_IN_ARRAY);
+	im = _cpl_image_from_numpy2d(tmp, len);
+    Py_DECREF(tmp);
+
+    //explicit casting crashes without NPY_ARRAY_FORCECAST.
+    PyArrayObject *tmp2 = PyArray_FROM_OTF(arr2_in, NPY_UBYTE, NPY_ARRAY_IN_ARRAY | NPY_ARRAY_FORCECAST);
+	mask = _cpl_mask_from_numpy2d(tmp2, len);
+    Py_DECREF(tmp2);
+
+    int res=0;
+
+    mask = cpl_image_set_bpm(im, mask);
+
+    Py_BEGIN_ALLOW_THREADS
+    res = cpl_detector_interpolate_rejected(im);
+    Py_END_ALLOW_THREADS
+    if (res != 0) {
+        PyErr_Format(PyExc_ValueError, "CPL Error (%d): %s", cpl_error_get_code(), cpl_error_get_message());
+        goto except;
+    }
+
+    arr_out =  _numpy2d_from_cpl_image(im, len);
+
+    goto finally;
+except:
+    arr_out = NULL;
+finally:
+    if(!im) {cpl_image_delete(im);}
+    cpl_end();
+    return PyArray_Return(arr_out);
+}
+
+
+static PyObject* lacosmic_edgedetect(PyObject* self, PyObject* args, PyObject* keywds){
+  
+    PyObject *arr_in;
+    PyArrayObject *arr_out;
+    npy_intp * len;
+
+    hdrl_image * im;
+    hdrl_parameter * params;
+    cpl_mask * mask;
+
+    int maxiter=5;
+    double sigma_lim=20., f_lim=2.;
+
+    static char *kwlist[] = {"image", "sigma_lim",
+                            "f_lim", "maxiter", 
+                            NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|ddi", kwlist, &arr_in,
+                                            &sigma_lim, &f_lim, &maxiter))
+        return NULL;
+
+    len = PyArray_SHAPE(arr_in);
+
+	cpl_init(CPL_INIT_DEFAULT);
+
+    params = hdrl_lacosmic_parameter_create(sigma_lim, f_lim, maxiter);
     if(params == NULL){
         HDRL_simplePrint(cpl_error_get_message());
         printf("%02d %s\n", cpl_error_get_code(), cpl_error_get_message());
@@ -513,11 +686,11 @@ static PyObject* bpm_2d_compute(PyObject* self, PyObject* args, PyObject* keywds
     Py_DECREF(tmp);
 
     Py_BEGIN_ALLOW_THREADS
-    mask = hdrl_bpm_2d_compute(im, params);
+    mask = hdrl_lacosmic_edgedetect(im, params);
     Py_END_ALLOW_THREADS
     if (mask == NULL) {
-        HDRL_simplePrint("Warning: bpm_2d_compute failed. Returned None.");
-        printf("Warning: bpm_2d_compute failed. Returned None.\n");
+        HDRL_simplePrint("Warning: lacosmic_edgedetect failed. Returned None.");
+        printf("Warning: lacosmic_edgedetect failed. Returned None.\n");
         Py_RETURN_NONE;
     }
 
@@ -583,11 +756,15 @@ static PyMethodDef hdrlMethods[] =
 {
     {"bpm_2d_compute", (PyCFunction) bpm_2d_compute, METH_VARARGS | METH_KEYWORDS,
         "evaluate the cosine on a numpy array"},
-    {"compute_strehl", compute_strehl, METH_VARARGS,
+    {"lacosmic_edgedetect", (PyCFunction) lacosmic_edgedetect, METH_VARARGS | METH_KEYWORDS,
+        "evaluate the cosine on a numpy array"},
+    {"bpm_interpolate", (PyCFunction) bpm_interpolate, METH_VARARGS | METH_KEYWORDS,
+        bpm_interpolate_doc},
+     {"compute_strehl", compute_strehl, METH_VARARGS,
         "Calculate Strehl ratio from a given image"},
     {"bpm_fit_compute", (PyCFunction) bpm_fit_compute, METH_VARARGS | METH_KEYWORDS,
         bpm_fit_compute_doc},
-    {"test", test, METH_NOARGS,
+    {"test", test, METH_VARARGS,
         "evaluate the cosine on a numpy array"},
     {NULL, NULL, 0, NULL}
 };
@@ -628,15 +805,12 @@ PyMODINIT_FUNC PyInit_HDRL2(void) {
         return NULL;
     }
 
+    PyModule_AddObject(module, NAME_ERROR_IMAGE, Py_BuildValue("O", Py_True)); 
+    PyModule_AddObject(module, NAME_ERROR_METHOD, Py_BuildValue("i", ERROR_METHOD)); 
+    PyModule_AddObject(module, NAME_RN_ADU, Py_BuildValue("d", RN_ADU)); 
+    PyModule_AddObject(module, NAME_GAIN, Py_BuildValue("d", GAIN)); 
+
     if (PyErr_Occurred()) return NULL;
     return module;
 }
 
-/*
-PyMODINIT_FUNC inittest(void) {
-    PyObject *module;
-    module = Py_InitModule("HDRL2", hdrlMethods);
-    if(module==NULL) return;
-    import_array();
-    return;
-}*/

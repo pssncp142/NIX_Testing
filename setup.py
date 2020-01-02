@@ -6,7 +6,7 @@ import os, numpy
 
 
 include_dirs = [numpy.get_include(), '/usr/include/', '/home/ydallilar/.software/local/include/', 'hdrldemo-1.2.0/hdrl/']
-library_dirs = ['/usr/lib/', '/opt/miniconda2/envs/py3/lib/', 'hdrl/.lib/']
+library_dirs = ['/usr/lib/', '/home/ydallilar/.software/local/lib', 'hdrl/.lib/']
 libraries = ['cplcore', 'cpldrs', 'cplui', 'cpldfs', 'cext', 
         'fftw3', 'wcs', 'm', 'gsl', 'gslcblas']
 extra_link_args = ['-lgomp']
@@ -28,10 +28,9 @@ class customBuild(build):
 
     def run(self):
 
-        configure_cmd = ["./configure"] 
-                #"--prefix=/home/ydallilar/.software/local"
-                #"--with-cpl=/opt/miniconda2/envs/py3/lib/",
-                #"--with-gsl=/usr"]
+        configure_cmd = ["./configure",
+                "--with-cpl=/home/ydallilar/.software/local/",
+                "--with-gsl=/home/ydallilar/.software/local/"]
         build_cmd = ["make"]
         hack_cmd = ["sed", "-i", "s/hdrldemo_utils/hdrldemo_python/g", "hdrldemo/Makefile"]
 
