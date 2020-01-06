@@ -4,8 +4,11 @@ NIX_Testing.HDRL2
 .. toctree::
     :maxdepth: 2
 
-.. automodule:: NIX_Testing.HDRL2
-    :members:
+To simplify, CPL images are created of type double and cpl masks of type cpl_binary (or unsigned char).
+Their equivalents in numpy are NPY_FLOAT64 and NPY_UBYTE respectively.
+The functions in this module accept ndarrays of any type, but only returns the types given above.
+Any type beyond np.float64 will potentially throw an error (due to explicit casting safety on numpy), or potentially segfault if given as input.
+Therefore, they should be avoided!.
 
 Global Variables
 ----------------

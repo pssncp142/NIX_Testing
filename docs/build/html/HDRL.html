@@ -159,85 +159,11 @@
 <h1>NIX_Testing.HDRL2<a class="headerlink" href="#nix-testing-hdrl2" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<span class="target" id="module-NIX_Testing.HDRL2"></span><p>Some utility functions from HDRL to be used with numpy arrays.</p>
-<dl class="function">
-<dt id="NIX_Testing.HDRL2.bpm_2d_compute">
-<code class="sig-prename descclassname">NIX_Testing.HDRL2.</code><code class="sig-name descname">bpm_2d_compute</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.HDRL2.bpm_2d_compute" title="Permalink to this definition">¶</a></dt>
-<dd><p>evaluate the cosine on a numpy array</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="NIX_Testing.HDRL2.bpm_fit_compute">
-<code class="sig-prename descclassname">NIX_Testing.HDRL2.</code><code class="sig-name descname">bpm_fit_compute</code><span class="sig-paren">(</span><em class="sig-param">image</em>, <em class="sig-param">exptime</em><span class="optional">[</span>, <em class="sig-param">method</em>, <em class="sig-param">degree</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.HDRL2.bpm_fit_compute" title="Permalink to this definition">¶</a></dt>
-<dd><p>A python wrapper around ‘hdrl_bpm_fit_compute’ function. ‘hdrl_bpm_fit_parameter’ is created inside the wrapper based on the keyword values.</p>
-<p>Computes bad pixel mask from a set of flat images with a different exposure time. The algorithm performs fit on a stack of images and finds outliers using one of three defined methods.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>images</strong> (<em>(</em><em>N</em><em>,</em><em>N</em><em>,</em><em>N</em><em>,</em><em>) </em><em>ndarray</em>) – Stack of images - along the third axis.</p></li>
-<li><p><strong>exptime</strong> (<em>(</em><em>N</em><em>,</em><em>) </em><em>ndarray</em>) – Exptime corresponding to images. Should have same length as third axis of <strong>images</strong>.</p></li>
-<li><p><strong>method</strong> (<em>str</em>) – <p>Method used to determine bad pixels. If given method is none of the belowfunction returns <em>Py_None</em>. Accepted values are (default=’pval’):</p>
-<ul>
-<li><p>’pval’    : threshold on the p-values.</p></li>
-<li><p>’rel_chi’ : sigma cut on the relative chi values.</p></li>
-<li><p>’rel_coef’: sigma cut on the relative coefficients of polynomial fit.</p></li>
-</ul>
-</p></li>
-<li><p><strong>degree</strong> (<em>int</em><em>, </em><em>optional</em>) – Degree of polynomial to fit. (default=1)</p></li>
-<li><p><strong>pval</strong> (<em>double</em><em>, </em><em>optional</em>) – Threshold in p-values. Enabled with <em>pval</em> (default=10.)</p></li>
-<li><p><strong>rel_chi_low</strong> (<em>double</em><em>, </em><em>optional</em>) – Low threshold in relative chi values. Enabled with <em>rel_chi</em> (default=5.)</p></li>
-<li><p><strong>rel_chi_low</strong> – Low threshold in relative chi values. Enabled with <em>rel_chi</em> (default=10.)</p></li>
-<li><p><strong>rel_coef_low</strong> (<em>double</em><em>, </em><em>optional</em>) – Low threshold in relative coefficients. Enabled with <em>rel_coef</em> (default=5.)</p></li>
-<li><p><strong>rel_coef_low</strong> – Low threshold in relative coefficients. Enabled with <em>rel_coef</em> (default=10.)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>bp_mask</strong> – Output of <em>hdrl_bpm_fit_compute</em> converted to a numpy array. Good pixels are marked with 0 and bad pixels with 1. When <em>rel_coef</em> method used, algorithm computes bad pixels for each coefficient of the polynomial. Hence, the resulting bad pixel map is [2^0(0th)+2^1(1st)+2^2(2nd)+..] where bad pixel map derived from Nth order coefficients is given by (Nth). If the function fails, it returns <em>Py_None</em> instead of throwing an error.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(N,N) ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="NIX_Testing.HDRL2.bpm_interpolate">
-<code class="sig-prename descclassname">NIX_Testing.HDRL2.</code><code class="sig-name descname">bpm_interpolate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.HDRL2.bpm_interpolate" title="Permalink to this definition">¶</a></dt>
-<dd><p>A python wrapper around CPL function <a class="reference external" href="https://www.eso.org/sci/software/cpl/reference/group__cpl__detector.html#ga83fd1a1d48eeeb444d6a1a84c6d5e2de">cpl_detector_interpolate_rejected</a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>image</strong> (<em>(</em><em>N</em><em>,</em><em>N</em><em>,</em><em>) </em><em>ndarray</em>) – An image.</p></li>
-<li><p><strong>bp_mask</strong> (<em>(</em><em>N</em><em>,</em><em>N</em><em>,</em><em>) </em><em>ndarray</em>) – Bad pixel masks indicating pixels to interpolate.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>out</strong> – Returns an image in which bad pixels are interpolated.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(N,N,) ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="NIX_Testing.HDRL2.compute_strehl">
-<code class="sig-prename descclassname">NIX_Testing.HDRL2.</code><code class="sig-name descname">compute_strehl</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.HDRL2.compute_strehl" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate Strehl ratio from a given image</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="NIX_Testing.HDRL2.lacosmic_edgedetect">
-<code class="sig-prename descclassname">NIX_Testing.HDRL2.</code><code class="sig-name descname">lacosmic_edgedetect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.HDRL2.lacosmic_edgedetect" title="Permalink to this definition">¶</a></dt>
-<dd><p>evaluate the cosine on a numpy array</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="NIX_Testing.HDRL2.test">
-<code class="sig-prename descclassname">NIX_Testing.HDRL2.</code><code class="sig-name descname">test</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.HDRL2.test" title="Permalink to this definition">¶</a></dt>
-<dd><p>evaluate the cosine on a numpy array</p>
-</dd></dl>
-
+<p>To simplify, CPL images are created of type double and cpl masks of type cpl_binary (or unsigned char).
+Their equivalents in numpy are NPY_FLOAT64 and NPY_UBYTE respectively.
+The functions in this module accept ndarrays of any type, but only returns the types given above.
+Any type beyond np.float64 will potentially throw an error (due to explicit casting safety on numpy), or potentially segfault if given as input.
+Therefore, they should be avoided!.</p>
 <div class="section" id="global-variables">
 <h2>Global Variables<a class="headerlink" href="#global-variables" title="Permalink to this headline">¶</a></h2>
 <p>HDRL image struct is created with data and its error. Some functions in the library make use of the error values.
@@ -266,16 +192,16 @@ Hence, this module generates error images from the data based on the global vari
 <div class="section" id="generate-bad-pixel-maps">
 <h2>Generate Bad Pixel Maps<a class="headerlink" href="#generate-bad-pixel-maps" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt>
-<code class="sig-prename descclassname">NIX_Testing.HDRL2.</code><code class="sig-name descname">bpm_fit_compute</code><span class="sig-paren">(</span><em class="sig-param">image</em>, <em class="sig-param">exptime</em><span class="optional">[</span>, <em class="sig-param">method</em>, <em class="sig-param">degree</em><span class="optional">]</span><span class="sig-paren">)</span></dt>
-<dd><p>A python wrapper around ‘hdrl_bpm_fit_compute’ function. ‘hdrl_bpm_fit_parameter’ is created inside the wrapper based on the keyword values.</p>
+<dt id="NIX_Testing.HDRL2.bpm_fit_compute">
+<code class="sig-prename descclassname">NIX_Testing.HDRL2.</code><code class="sig-name descname">bpm_fit_compute</code><span class="sig-paren">(</span><em class="sig-param">image</em>, <em class="sig-param">exptime</em><span class="optional">[</span>, <em class="sig-param">method</em>, <em class="sig-param">degree</em>, <em class="sig-param">pval</em>, <em class="sig-param">rel_chi_low</em>, <em class="sig-param">rel_chi_high</em>, <em class="sig-param">rel_coef_low</em>, <em class="sig-param">rel_coef_high</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.HDRL2.bpm_fit_compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>A python wrapper for ‘hdrl_bpm_fit_compute’ function. ‘hdrl_bpm_fit_parameter’ is created inside the wrapper based on the keyword values.</p>
 <p>Computes bad pixel mask from a set of flat images with a different exposure time. The algorithm performs fit on a stack of images and finds outliers using one of three defined methods.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>images</strong> (<em>(</em><em>N</em><em>,</em><em>N</em><em>,</em><em>N</em><em>,</em><em>) </em><em>ndarray</em>) – Stack of images - along the third axis.</p></li>
 <li><p><strong>exptime</strong> (<em>(</em><em>N</em><em>,</em><em>) </em><em>ndarray</em>) – Exptime corresponding to images. Should have same length as third axis of <strong>images</strong>.</p></li>
-<li><p><strong>method</strong> (<em>str</em>) – <p>Method used to determine bad pixels. If given method is none of the belowfunction returns <em>Py_None</em>. Accepted values are (default=’pval’):</p>
+<li><p><strong>method</strong> (<em>str</em><em>, </em><em>optional</em>) – <p>Method used to determine bad pixels. If given method is none of the below,the function will throw an error. Accepted values are (default=’pval’):</p>
 <ul>
 <li><p>’pval’    : threshold on the p-values.</p></li>
 <li><p>’rel_chi’ : sigma cut on the relative chi values.</p></li>
@@ -284,10 +210,8 @@ Hence, this module generates error images from the data based on the global vari
 </p></li>
 <li><p><strong>degree</strong> (<em>int</em><em>, </em><em>optional</em>) – Degree of polynomial to fit. (default=1)</p></li>
 <li><p><strong>pval</strong> (<em>double</em><em>, </em><em>optional</em>) – Threshold in p-values. Enabled with <em>pval</em> (default=10.)</p></li>
-<li><p><strong>rel_chi_low</strong> (<em>double</em><em>, </em><em>optional</em>) – Low threshold in relative chi values. Enabled with <em>rel_chi</em> (default=5.)</p></li>
-<li><p><strong>rel_chi_low</strong> – Low threshold in relative chi values. Enabled with <em>rel_chi</em> (default=10.)</p></li>
-<li><p><strong>rel_coef_low</strong> (<em>double</em><em>, </em><em>optional</em>) – Low threshold in relative coefficients. Enabled with <em>rel_coef</em> (default=5.)</p></li>
-<li><p><strong>rel_coef_low</strong> – Low threshold in relative coefficients. Enabled with <em>rel_coef</em> (default=10.)</p></li>
+<li><p><strong>rel_chi_high</strong> (<em>rel_chi_low</em><em>,</em>) – Low/High threshold in relative chi values. Enabled with <em>rel_chi</em> (default=(5., 10.))</p></li>
+<li><p><strong>rel_coef_high</strong> (<em>rel_coef_low</em><em>,</em>) – Low/High threshold in relative coefficent values. Enabled with <em>rel_coef</em> (default=(5., 10.))</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -300,32 +224,80 @@ Hence, this module generates error images from the data based on the global vari
 </dd></dl>
 
 <dl class="method">
-<dt>
-<code class="sig-prename descclassname">HDRL2.</code><code class="sig-name descname">bpm_2d_compute</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>evaluate the cosine on a numpy array</p>
+<dt id="NIX_Testing.HDRL2.bpm_2d_compute">
+<code class="sig-prename descclassname">HDRL2.</code><code class="sig-name descname">bpm_2d_compute</code><span class="sig-paren">(</span><em class="sig-param">image, [method, kappa_low, kappa_high, maxiter, steps_x, steps_y,filter_size_x, filter_size_y, order_x, order_y, smooth_x, smooth_y</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.HDRL2.bpm_2d_compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>A python wrapper for ‘hdrl_bpm_2d_compute’ function. ‘hdrl_bpm_2d_parameter’ is created inside the wrapper based on the keyword values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>(</em><em>N</em><em>,</em><em>N</em><em>,</em><em>) </em><em>ndarray</em>) – An image.</p></li>
+<li><p><strong>kappa_low</strong> (<em>double</em><em>, </em><em>optional</em>) – (default=5.)</p></li>
+<li><p><strong>kappa_high</strong> (<em>double</em><em>, </em><em>optional</em>) – (default=10.)</p></li>
+<li><p><strong>maxiter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of iterations (default=10).</p></li>
+<li><p><strong>method</strong> (<em>(</em><em>N</em><em>,</em><em>N</em><em>,</em><em>) </em><em>ndarray</em>) – <p>Method used to determine bad pixels. If given method is none of the below,the function will throw an error. Accepted values are (default=’filter’):</p>
+<ul>
+<li><p>’filter’    : threshold on the p-values.</p></li>
+<li><p>’legendre’  : sigma cut on the relative chi values.</p></li>
+</ul>
+</p></li>
+<li><p><strong>steps_x</strong><strong>,</strong><strong>steps_y</strong> (<em>int</em><em>, </em><em>optional</em>) – (default=10)</p></li>
+<li><p><strong>filter_size_x</strong><strong>,</strong><strong>filter_size_y</strong> (<em>int</em><em>, </em><em>optional</em>) – (default=10)</p></li>
+<li><p><strong>order_x</strong><strong>,</strong><strong>order_y</strong> (<em>int</em><em>, </em><em>optional</em>) – (default=2)</p></li>
+<li><p><strong>smooth_x</strong><strong>,</strong><strong>smooth_y</strong> (<em>int</em><em>, </em><em>optional</em>) – (default=5)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>out</strong> – Returns an image in which bad pixels are interpolated.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(N,N,) ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
 <div class="section" id="cosmic-rays">
 <h2>Cosmic-rays<a class="headerlink" href="#cosmic-rays" title="Permalink to this headline">¶</a></h2>
 <dl class="method">
-<dt>
-<code class="sig-prename descclassname">HDRL2.</code><code class="sig-name descname">lacosmic_edgedetect</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>evaluate the cosine on a numpy array</p>
+<dt id="NIX_Testing.HDRL2.lacosmic_edgedetect">
+<code class="sig-prename descclassname">HDRL2.</code><code class="sig-name descname">lacosmic_edgedetect</code><span class="sig-paren">(</span><em class="sig-param">image</em>, <em class="sig-param">wave</em>, <em class="sig-param">m1_rad</em>, <em class="sig-param">m2_rad</em>, <em class="sig-param">pixsc_x</em>, <em class="sig-param">pixsc_y</em>, <em class="sig-param">flux_r</em>, <em class="sig-param">bkg_low_r</em>, <em class="sig-param">bkg_high_r</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.HDRL2.lacosmic_edgedetect" title="Permalink to this definition">¶</a></dt>
+<dd><p>A python wrapper for hdrl_lacosmic_edgedetect function</p>
+<p>This routine determines bad-pixels on a single image via edge detection
+following the algorithm (LA-Cosmic) describe in van Dokkum,
+PASP,113,2001,p1420-27. The HDRL implementation does not use use error model
+as described in the paper but the error image passed to the function. Moreover
+we do several iterations and replace the detected bad pixels in each iteration
+by the information of the surrounding pixels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>(</em><em>N</em><em>,</em><em>N</em><em>,</em><em>) </em><em>ndarray</em>) – Image to compute Strehl ratio, must contain a point source.</p></li>
+<li><p><strong>sigma_lim</strong> (<em>double</em>) – Limiting sigma for detection on the sampling image</p></li>
+<li><p><strong>f_lim</strong> (<em>double</em>) – Limiting f factor for detection on the modified Laplacian image.</p></li>
+<li><p><strong>maxiter</strong> (<em>int</em>) – Maximum number of iterations</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>out</strong> – Bad Pixel mask.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(N,N) ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
 <div class="section" id="interpolate">
 <h2>Interpolate<a class="headerlink" href="#interpolate" title="Permalink to this headline">¶</a></h2>
 <dl class="method">
-<dt>
-<code class="sig-prename descclassname">HDRL2.</code><code class="sig-name descname">bpm_interpolate</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>A python wrapper around CPL function <a class="reference external" href="https://www.eso.org/sci/software/cpl/reference/group__cpl__detector.html#ga83fd1a1d48eeeb444d6a1a84c6d5e2de">cpl_detector_interpolate_rejected</a></p>
+<dt id="NIX_Testing.HDRL2.bpm_interpolate">
+<code class="sig-prename descclassname">HDRL2.</code><code class="sig-name descname">bpm_interpolate</code><span class="sig-paren">(</span><em class="sig-param">image</em>, <em class="sig-param">mask</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.HDRL2.bpm_interpolate" title="Permalink to this definition">¶</a></dt>
+<dd><p>A python wrapper for CPL function <a class="reference external" href="https://www.eso.org/sci/software/cpl/reference/group__cpl__detector.html#ga83fd1a1d48eeeb444d6a1a84c6d5e2de">cpl_detector_interpolate_rejected</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>image</strong> (<em>(</em><em>N</em><em>,</em><em>N</em><em>,</em><em>) </em><em>ndarray</em>) – An image.</p></li>
-<li><p><strong>bp_mask</strong> (<em>(</em><em>N</em><em>,</em><em>N</em><em>,</em><em>) </em><em>ndarray</em>) – Bad pixel masks indicating pixels to interpolate.</p></li>
+<li><p><strong>mask</strong> (<em>(</em><em>N</em><em>,</em><em>N</em><em>,</em><em>) </em><em>ndarray</em>) – Bad pixel masks indicating pixels to interpolate.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -341,9 +313,27 @@ Hence, this module generates error images from the data based on the global vari
 <div class="section" id="image-quality">
 <h2>Image Quality<a class="headerlink" href="#image-quality" title="Permalink to this headline">¶</a></h2>
 <dl class="method">
-<dt>
-<code class="sig-prename descclassname">HDRL2.</code><code class="sig-name descname">compute_strehl</code><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
-<dd><p>Calculate Strehl ratio from a given image</p>
+<dt id="NIX_Testing.HDRL2.compute_strehl">
+<code class="sig-prename descclassname">HDRL2.</code><code class="sig-name descname">compute_strehl</code><span class="sig-paren">(</span><em class="sig-param">image</em>, <em class="sig-param">wave</em>, <em class="sig-param">m1_rad</em>, <em class="sig-param">m2_rad</em>, <em class="sig-param">pixsc_x</em>, <em class="sig-param">pixsc_y</em>, <em class="sig-param">flux_r</em>, <em class="sig-param">bkg_low_r</em>, <em class="sig-param">bkg_high_r</em><span class="sig-paren">)</span><a class="headerlink" href="#NIX_Testing.HDRL2.compute_strehl" title="Permalink to this definition">¶</a></dt>
+<dd><p>A python wrapper for hdrl_compute_strehl function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>(</em><em>N</em><em>,</em><em>N</em><em>,</em><em>) </em><em>ndarray</em>) – Image to compute Strehl ratio, must contain a point source.</p></li>
+<li><p><strong>wave</strong> (<em>double</em>) – Wavelength to compute PSF.</p></li>
+<li><p><strong>m1_rad</strong><strong>,</strong><strong>m2_rad</strong> (<em>double</em>) – Radius (in m) of m1 and m2. (Or, radius of the aperture and obscuration.)</p></li>
+<li><p><strong>pixsc_x</strong><strong>,</strong><strong>pixsc_y</strong> (<em>double</em>) – Pixel scale in (x,y) arcsec/pix.</p></li>
+<li><p><strong>flux_r</strong> (<em>double</em>) – Flux radius to estimate source count within an aperture. (in arcsec)</p></li>
+<li><p><strong>bkg_low_r</strong><strong>,</strong><strong>bkg_high_r</strong> (<em>double</em>) – Inner and outer radius of the sky annulus to estimate background (in arcsec)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>out</strong> – Pythonized version of hdrl_strehl_result struct. out.strehl_value.data gives the Strehl ratio..</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>HDRL2.strehl_result</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

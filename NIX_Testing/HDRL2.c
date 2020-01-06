@@ -13,12 +13,12 @@
 
 /*ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo*/
 // Documentation
-PyDoc_STRVAR(mod_doc, "Some utility functions from HDRL to be used with numpy arrays.\n");
+PyDoc_STRVAR(mod__doc__, "Some utility functions from HDRL to be used with numpy arrays.\n");
 
-PyDoc_STRVAR(bpm_fit_compute_doc, 
-"bpm_fit_compute(image, exptime, [method, degree])\n"
+PyDoc_STRVAR(bpm_fit_compute__doc__, 
+"bpm_fit_compute(image, exptime, [method, degree, pval, rel_chi_low, rel_chi_high, rel_coef_low, rel_coef_high])\n"
 "\n"
-"A python wrapper around 'hdrl_bpm_fit_compute' function. 'hdrl_bpm_fit_parameter' is created inside the wrapper "
+"A python wrapper for 'hdrl_bpm_fit_compute' function. 'hdrl_bpm_fit_parameter' is created inside the wrapper "
 "based on the keyword values.\n"
 "\n"
 "Computes bad pixel mask from a set of flat images with a different exposure time. The algorithm performs fit "
@@ -31,9 +31,9 @@ PyDoc_STRVAR(bpm_fit_compute_doc,
 "\tStack of images - along the third axis.\n"
 "exptime : (N,) ndarray\n"
 "\tExptime corresponding to images. Should have same length as third axis of **images**.\n"
-"method : str\n"
-"\tMethod used to determine bad pixels. If given method is none of the below"
-"function returns *Py_None*. Accepted values are (default='pval'):\n\n"
+"method : str, optional \n"
+"\tMethod used to determine bad pixels. If given method is none of the below,"
+"the function will throw an error. Accepted values are (default='pval'):\n\n"
 "\t* 'pval'    : threshold on the p-values.\n"
 "\t* 'rel_chi' : sigma cut on the relative chi values.\n"
 "\t* 'rel_coef': sigma cut on the relative coefficients of polynomial fit.\n"
@@ -41,14 +41,10 @@ PyDoc_STRVAR(bpm_fit_compute_doc,
 "\tDegree of polynomial to fit. (default=1)\n"
 "pval : double, optional\n"
 "\tThreshold in p-values. Enabled with *pval* (default=10.)\n"
-"rel_chi_low : double, optional\n"
-"\tLow threshold in relative chi values. Enabled with *rel_chi* (default=5.)\n"
-"rel_chi_low : double, optional\n"
-"\tLow threshold in relative chi values. Enabled with *rel_chi* (default=10.)\n"
-"rel_coef_low : double, optional\n"
-"\tLow threshold in relative coefficients. Enabled with *rel_coef* (default=5.)\n"
-"rel_coef_low : double, optional\n"
-"\tLow threshold in relative coefficients. Enabled with *rel_coef* (default=10.)\n"
+"rel_chi_low, rel_chi_high : double, optional\n"
+"\tLow/High threshold in relative chi values. Enabled with *rel_chi* (default=(5., 10.))\n"
+"rel_coef_low, rel_coef_high : double, optional\n"
+"\tLow/High threshold in relative coefficent values. Enabled with *rel_coef* (default=(5., 10.))\n"
 "\n"
 "Returns\n"
 "-------\n"
@@ -61,8 +57,46 @@ PyDoc_STRVAR(bpm_fit_compute_doc,
 "throwing an error."
 "\n");
 
-PyDoc_STRVAR(bpm_interpolate_doc, 
-"A python wrapper around CPL function "
+PyDoc_STRVAR(bpm_2d_compute__doc__, 
+"bpm_2d_compute(image, [method, kappa_low, kappa_high, maxiter, steps_x, steps_y,"
+"filter_size_x, filter_size_y, order_x, order_y, smooth_x, smooth_y)\n"
+"A python wrapper for 'hdrl_bpm_2d_compute' function. 'hdrl_bpm_2d_parameter' is created inside the wrapper "
+"based on the keyword values.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"\n"
+"image : (N,N,) ndarray\n"
+"\tAn image.\n"
+"kappa_low : double, optional\n"
+"\t(default=5.)\n"
+"kappa_high : double, optional\n"
+"\t(default=10.)\n"
+"maxiter : int, optional\n"
+"\tNumber of iterations (default=10).\n"
+"method : (N,N,) ndarray\n"
+"\tMethod used to determine bad pixels. If given method is none of the below,"
+"the function will throw an error. Accepted values are (default='filter'):\n\n"
+"\t* 'filter'    : threshold on the p-values.\n"
+"\t* 'legendre'  : sigma cut on the relative chi values.\n"
+"steps_x,steps_y : int, optional\n"
+"\t(default=10)\n"
+"filter_size_x,filter_size_y : int, optional\n"
+"\t(default=10)\n"
+"order_x,order_y : int, optional\n"
+"\t(default=2)\n"
+"smooth_x,smooth_y : int, optional\n"
+"\t(default=5)\n"
+"\n"
+"Returns\n"
+"-------\n"
+"out : (N,N,) ndarray\n"
+"\tReturns an image in which bad pixels are interpolated."
+"\n");
+
+PyDoc_STRVAR(bpm_interpolate__doc__, 
+"bpm_interpolate(image, mask)\n"
+"A python wrapper for CPL function "
 "`cpl_detector_interpolate_rejected <https://www.eso.org/sci/software/cpl/reference/group__cpl__detector.html#ga83fd1a1d48eeeb444d6a1a84c6d5e2de>`_ \n"
 "\n" 
 "Parameters\n"
@@ -70,7 +104,7 @@ PyDoc_STRVAR(bpm_interpolate_doc,
 "\n"
 "image : (N,N,) ndarray\n"
 "\tAn image.\n"
-"bp_mask : (N,N,) ndarray\n"
+"mask : (N,N,) ndarray\n"
 "\tBad pixel masks indicating pixels to interpolate.\n"
 "\n"
 "Returns\n"
@@ -79,8 +113,65 @@ PyDoc_STRVAR(bpm_interpolate_doc,
 "\tReturns an image in which bad pixels are interpolated."
 "\n");
 
+PyDoc_STRVAR(compute_strehl__doc__, 
+"compute_strehl(image, wave, m1_rad, m2_rad, pixsc_x, pixsc_y, flux_r, bkg_low_r, bkg_high_r)\n"
+"A python wrapper for hdrl_compute_strehl function\n"
+"\n" 
+"Parameters\n"
+"----------\n"
+"\n"
+"image : (N,N,) ndarray\n"
+"\tImage to compute Strehl ratio, must contain a point source.\n"
+"wave : double\n"
+"\tWavelength to compute PSF.\n"
+"m1_rad,m2_rad : double\n"
+"\tRadius (in m) of m1 and m2. (Or, radius of the aperture and obscuration.)\n"
+"pixsc_x,pixsc_y : double\n"
+"\tPixel scale in (x,y) arcsec/pix.\n"
+"flux_r : double\n"
+"\tFlux radius to estimate source count within an aperture. (in arcsec)\n"
+"bkg_low_r,bkg_high_r : double\n"
+"\tInner and outer radius of the sky annulus to estimate background (in arcsec)\n"
+"\n"
+"Returns\n"
+"-------\n"
+"out : HDRL2.strehl_result\n"
+"\tPythonized version of hdrl_strehl_result struct. out.strehl_value.data gives the Strehl ratio.."
+"\n");
+
+PyDoc_STRVAR(lacosmic_edgedetect__doc__, 
+"lacosmic_edgedetect(image, wave, m1_rad, m2_rad, pixsc_x, pixsc_y, flux_r, bkg_low_r, bkg_high_r)\n"
+"A python wrapper for hdrl_lacosmic_edgedetect function\n"
+"\n" 
+"hdrl_lacosmics.c\n"
+"----------------\n"
+"This routine determines bad-pixels on a single image via edge detection\n"
+"following the algorithm (LA-Cosmic) describe in van Dokkum,\n"
+"PASP,113,2001,p1420-27. The HDRL implementation does not use use error model\n"
+"as described in the paper but the error image passed to the function. Moreover\n"
+"we do several iterations and replace the detected bad pixels in each iteration\n"
+"by the information of the surrounding pixels.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"\n"
+"image : (N,N,) ndarray\n"
+"\tImage to compute Strehl ratio, must contain a point source.\n"
+"sigma_lim : double\n"
+"\tLimiting sigma for detection on the sampling image\n"
+"f_lim : double\n"
+"\tLimiting f factor for detection on the modified Laplacian image.\n"
+"maxiter : int\n"
+"\tMaximum number of iterations"
+"\n"
+"Returns\n"
+"-------\n"
+"out : (N,N) ndarray\n"
+"\tBad Pixel mask."
+"\n");
 
 /*ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo*/
+// Just an example
 
 void HDRL_simplePrint(char * text){
     
@@ -94,6 +185,7 @@ void HDRL_simplePrint(char * text){
 }
 
 /*ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo*/
+//hdrl_value definition
 
 typedef struct {
     PyObject_HEAD
@@ -137,9 +229,10 @@ hdrlValue_dealloc(py_hdrl_value *self)
 static PyObject *
 hdrlValue_repr(py_hdrl_value *self)
 {
-    char *out = malloc(100*sizeof(char));
+    char *out = malloc(sizeof(char)*10);
     sprintf(out, "(%.3f +- %.3f)", self->data, self->error);
     PyObject * res = Py_BuildValue("s", out);
+    free(out);
     return res;
 }
 
@@ -176,7 +269,7 @@ hdrlValue_initFromC(double data, double error)
 }
 
 /*ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo*/
-
+// strehl_result definition
 typedef struct {
     PyObject_HEAD
     PyObject* strehl_value;
@@ -262,8 +355,9 @@ static PyObject * strehlResult_initFromOriginal(hdrl_strehl_result result){
 }
 
 /*ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo*/
+// Global variables
 
-bool ERROR_IMAGE = true;
+int ERROR_IMAGE = true;
 int ERROR_METHOD = 0;
 double GAIN = 5.7;
 double RN_ADU = 4.5;
@@ -292,6 +386,7 @@ int _update_globals(PyObject * pMod){
 }
 
 /*ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo*/
+// Data conversion from numpy arrays
 
 cpl_image * _cpl_image_from_numpy2d(PyArrayObject* arr, npy_intp * len){
 
@@ -337,11 +432,6 @@ hdrl_image * _hdrl_image_from_numpy2d(PyArrayObject* arr, npy_intp *len){
 
     cpl_image * c_im = _cpl_image_from_numpy2d(arr, len);
     cpl_image * c_err;
-
-    //bool ERROR_IMAGE = true;
-    //int ERROR_METHOD = 0;
-    //double GAIN = 5.7;
-    //double RN_ADU = 4.5;
 
 	if (ERROR_IMAGE == true) {
 
@@ -401,28 +491,63 @@ hdrl_imagelist * _hdrl_imagelist_from_numpy2d(PyArrayObject* arr, npy_intp *len)
 
 }
 
+/*ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo*/
+// Module functions
+
+//A function to test stuff. Not for public use.
 static PyObject* test(PyObject* self, PyObject* args){
 
     PyObject * arr1, *arr2;
     char * f_name;
 
-     if (!PyArg_ParseTuple(args, "OOs", &arr1, &arr2, &f_name)){
+
+    if (!PyArg_ParseTuple(args, "OOs", &arr1, &arr2, &f_name)){
         return NULL;
 	}
 
     PyObject *mod, *func, *tuple, *res;
 
-    mod = PyImport_ImportModule("numpy");
-    func = PyObject_GetAttrString(mod, f_name);
-    tuple = Py_BuildValue("(O,O)", arr1, arr2);
-    res = PyEval_CallObject(func, tuple);
-
-    Py_DECREF(mod);
-    Py_DECREF(func);
-    Py_DECREF(tuple);
+    res = PyNumber_Add(arr1, arr2);
 
     return res;
 
+}
+
+static int _boolConverter(PyObject* obj, bool* out){
+    
+    if (obj == Py_True){
+        *out = 1;
+        return 1;
+    } else if (obj == Py_False) {
+        *out = 0;
+        return 1;
+    } else {
+        return 0;
+    }
+
+}
+
+static PyObject* globals(PyObject* self, PyObject* args, PyObject* keywds){
+
+    int report = 0;
+
+    static char *kwlist[] = {"gain", "rn_adu",
+                            "error_method", "error_image",
+                            "report",
+                            NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ddipp", kwlist, &GAIN, &RN_ADU,
+                                                                &ERROR_METHOD, 
+                                                                &ERROR_IMAGE, &report))
+        return NULL;
+
+    if (report){
+        printf("GAIN : %.3f (e-/ADU)\n", GAIN);
+        printf("RN_ADU : %.3f (ADU rms)\n", RN_ADU);
+        printf("ERROR_METHOD : %d\n", ERROR_METHOD);
+        printf("ERROR_IMAGE : %d\n", ERROR_IMAGE);
+    }
+    Py_RETURN_NONE;
 }
 
 static PyObject* bpm_fit_compute(PyObject* self, PyObject* args, PyObject* keywds){
@@ -483,9 +608,9 @@ static PyObject* bpm_fit_compute(PyObject* self, PyObject* args, PyObject* keywd
     c_vec = _cpl_vector_from_numpy1d(tmp, len2);
     Py_DECREF(tmp);
     
-    Py_BEGIN_ALLOW_THREADS
+    //Py_BEGIN_ALLOW_THREADS
     res = hdrl_bpm_fit_compute(params, imlist, c_vec, &c_im);
-    Py_END_ALLOW_THREADS
+    //Py_END_ALLOW_THREADS
     if(res > 0){
         PyErr_Format(PyExc_ValueError, "CPL Error (%d): %s", cpl_error_get_code(), cpl_error_get_message());
         goto except;
@@ -569,9 +694,9 @@ static PyObject* bpm_2d_compute(PyObject* self, PyObject* args, PyObject* keywds
 	im = _hdrl_image_from_numpy2d(tmp, len);
     Py_DECREF(tmp);
 
-    Py_BEGIN_ALLOW_THREADS
+    //Py_BEGIN_ALLOW_THREADS
     mask = hdrl_bpm_2d_compute(im, params);
-    Py_END_ALLOW_THREADS
+    //Py_END_ALLOW_THREADS
     if (mask == NULL) {
         PyErr_Format(PyExc_ValueError, "CPL Error (%d): %s", cpl_error_get_code(), cpl_error_get_message());
         goto except;
@@ -629,9 +754,9 @@ static PyObject* bpm_interpolate(PyObject* self, PyObject* args, PyObject* keywd
 
     mask = cpl_image_set_bpm(im, mask);
 
-    Py_BEGIN_ALLOW_THREADS
+    //Py_BEGIN_ALLOW_THREADS
     res = cpl_detector_interpolate_rejected(im);
-    Py_END_ALLOW_THREADS
+    //Py_END_ALLOW_THREADS
     if (res != 0) {
         PyErr_Format(PyExc_ValueError, "CPL Error (%d): %s", cpl_error_get_code(), cpl_error_get_message());
         goto except;
@@ -685,9 +810,9 @@ static PyObject* lacosmic_edgedetect(PyObject* self, PyObject* args, PyObject* k
 	im = _hdrl_image_from_numpy2d(tmp, len);
     Py_DECREF(tmp);
 
-    Py_BEGIN_ALLOW_THREADS
+    //Py_BEGIN_ALLOW_THREADS
     mask = hdrl_lacosmic_edgedetect(im, params);
-    Py_END_ALLOW_THREADS
+    //Py_END_ALLOW_THREADS
     if (mask == NULL) {
         HDRL_simplePrint("Warning: lacosmic_edgedetect failed. Returned None.");
         printf("Warning: lacosmic_edgedetect failed. Returned None.\n");
@@ -739,9 +864,9 @@ PyObject * compute_strehl(PyObject* self, PyObject* args){
     if (params == NULL)
         HDRL_simplePrint("Oops\n");
 
-    Py_BEGIN_ALLOW_THREADS
+    //Py_BEGIN_ALLOW_THREADS
     strehl = hdrl_strehl_compute(im, params);
-    Py_END_ALLOW_THREADS
+    //Py_END_ALLOW_THREADS
 
     hdrl_image_delete(im);
     hdrl_parameter_delete(params);
@@ -751,19 +876,23 @@ PyObject * compute_strehl(PyObject* self, PyObject* args){
     return strehlResult_initFromOriginal(strehl);
 }
 
+/*ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo*/
+// Module definitions.
 
 static PyMethodDef hdrlMethods[] =
 {
     {"bpm_2d_compute", (PyCFunction) bpm_2d_compute, METH_VARARGS | METH_KEYWORDS,
-        "evaluate the cosine on a numpy array"},
+        bpm_2d_compute__doc__},
     {"lacosmic_edgedetect", (PyCFunction) lacosmic_edgedetect, METH_VARARGS | METH_KEYWORDS,
-        "evaluate the cosine on a numpy array"},
+        lacosmic_edgedetect__doc__},
     {"bpm_interpolate", (PyCFunction) bpm_interpolate, METH_VARARGS | METH_KEYWORDS,
-        bpm_interpolate_doc},
-     {"compute_strehl", compute_strehl, METH_VARARGS,
-        "Calculate Strehl ratio from a given image"},
+        bpm_interpolate__doc__},
+    {"compute_strehl", compute_strehl, METH_VARARGS,
+        compute_strehl__doc__},
     {"bpm_fit_compute", (PyCFunction) bpm_fit_compute, METH_VARARGS | METH_KEYWORDS,
-        bpm_fit_compute_doc},
+        bpm_fit_compute__doc__},
+    {"globals", (PyCFunction) globals, METH_VARARGS | METH_KEYWORDS,
+        "globals"},
     {"test", test, METH_VARARGS,
         "evaluate the cosine on a numpy array"},
     {NULL, NULL, 0, NULL}
@@ -772,7 +901,7 @@ static PyMethodDef hdrlMethods[] =
 static struct PyModuleDef hdrlModule = {
     PyModuleDef_HEAD_INIT,
     "HDRL2",   /* name of module */
-    mod_doc, /* module documentation, may be NULL */
+    mod__doc__, /* module documentation, may be NULL */
     -1,       /* size of per-interpreter state of the module,
                  or -1 if the module keeps state in global variables. */
     hdrlMethods
@@ -805,10 +934,10 @@ PyMODINIT_FUNC PyInit_HDRL2(void) {
         return NULL;
     }
 
-    PyModule_AddObject(module, NAME_ERROR_IMAGE, Py_BuildValue("O", Py_True)); 
-    PyModule_AddObject(module, NAME_ERROR_METHOD, Py_BuildValue("i", ERROR_METHOD)); 
-    PyModule_AddObject(module, NAME_RN_ADU, Py_BuildValue("d", RN_ADU)); 
-    PyModule_AddObject(module, NAME_GAIN, Py_BuildValue("d", GAIN)); 
+    //PyModule_AddObject(module, NAME_ERROR_IMAGE, Py_BuildValue("O", Py_True)); 
+    //PyModule_AddObject(module, NAME_ERROR_METHOD, Py_BuildValue("i", ERROR_METHOD)); 
+    //PyModule_AddObject(module, NAME_RN_ADU, Py_BuildValue("d", RN_ADU)); 
+    //PyModule_AddObject(module, NAME_GAIN, Py_BuildValue("d", GAIN)); 
 
     if (PyErr_Occurred()) return NULL;
     return module;
