@@ -405,6 +405,13 @@ PyArrayObject * _numpy2d_from_cpl_image(cpl_image * c_im, npy_intp * len){
 
 }
 
+PyArrayObject * _numpy2d_from_hdrl_image(hdrl_image * h_im, npy_intp *len){
+
+    cpl_image * c_im = hdrl_image_get_image(h_im);
+    return _numpy2d_from_cpl_image(c_im, len);
+
+}
+
 hdrl_image * _hdrl_image_from_numpy2d(PyArrayObject* arr, npy_intp *len){
 
     cpl_image * c_im = _cpl_image_from_numpy2d(arr, len);
@@ -464,6 +471,35 @@ hdrl_imagelist * _hdrl_imagelist_from_numpy2d(PyArrayObject* arr, npy_intp *len)
     Py_DECREF(arr_ndx);
 
     return imlist;
+
+}
+
+PyArrayObject * _numpy2d_from_hdrl_imagelist(hdrl_imagelist * imlist, npy_intp *len){
+
+    PyObject * im2D;
+    PyObject * im3D = PyArray_SimpleNew(3, len, NPY_FLOAT64);
+    PyObject * indices;
+
+    hdrl_image * im_tmp;
+
+    printf("1\n");
+    for (int i=0; i<len[2]; i++){
+    printf("2\n");
+
+        im_tmp = hdrl_imagelist_get(imlist, i);
+    printf("3\n");
+        im2D = _numpy2d_from_hdrl_image(im_tmp, len);
+    printf("4\n");
+        indices = PyArray_Arange(i, len[0]*len[1]*len[2], len[2], NPY_INTP);
+    printf("5\n");
+        PyArray_PutTo(im3D, im2D, indices, NPY_RAISE);
+    printf("6\n");
+        Py_DECREF(im2D);
+    printf("7\n");
+        Py_DECREF(indices);
+    }
+
+    return im3D;
 
 }
 
@@ -746,6 +782,62 @@ finally:
     return PyArray_Return((PyArrayObject*)arr_out);
 }
 
+static PyObject* bpm_3d_compute(PyObject* self, PyObject* args, PyObject* keywds){
+
+	PyObject * arr_in = NULL;
+    PyObject *arr_out = NULL;
+    npy_intp *len, *len2;
+	cpl_image *c_im = NULL;
+    cpl_vector * c_vec = NULL;
+    hdrl_imagelist *imlist = NULL;
+    hdrl_parameter *params = NULL;
+    int res;
+    
+    double kappa_low=3., kappa_high=10.;
+    char * method = "relative";
+
+    static char *kwlist[] = {"image", "method", 
+                            "kappa_low", "kappa_high",
+                            NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|sdd", kwlist, &arr_in, &method,
+                                                                    &kappa_low, &kappa_high)){
+        return NULL;
+    }
+
+	cpl_init(CPL_INIT_DEFAULT);
+
+    params = hdrl_bpm_3d_parameter_create(kappa_low, kappa_high, HDRL_BPM_3D_THRESHOLD_RELATIVE);
+
+    len = PyArray_SHAPE((PyArrayObject*) arr_in);
+    PyObject * tmp = PyArray_FROM_OTF(arr_in, NPY_FLOAT64, NPY_ARRAY_IN_ARRAY);
+    imlist = _hdrl_imagelist_from_numpy2d((PyArrayObject*)tmp, len);
+    Py_DECREF(tmp);
+
+    /*   
+    //Py_BEGIN_ALLOW_THREADS
+    res = hdrl_bpm_fit_compute(params, imlist, c_vec, &c_im);
+    //Py_END_ALLOW_THREADS
+    if(res > 0){
+        PyErr_Format(PyExc_ValueError, "CPL Error (%d): %s", cpl_error_get_code(), cpl_error_get_message());
+        goto except;
+    }*/
+
+    printf("asd\n");
+    arr_out = _numpy2d_from_hdrl_imagelist(imlist, len);
+
+    goto finally;
+except:
+    arr_out = NULL;
+finally:
+    if(!imlist) hdrl_imagelist_delete(imlist);
+    if(!params) hdrl_parameter_delete(params);
+	cpl_end();
+    return PyArray_Return((PyArrayObject *) arr_out);
+
+}
+
+
 static PyObject* bpm_interpolate(PyObject* self, PyObject* args, PyObject* keywds){
   
     PyObject *arr_in, *arr2_in;
@@ -911,6 +1003,8 @@ static PyMethodDef hdrlMethods[] =
 {
     {"bpm_2d_compute", (PyCFunction) bpm_2d_compute, METH_VARARGS | METH_KEYWORDS,
         bpm_2d_compute__doc__},
+    {"bpm_3d_compute", (PyCFunction) bpm_3d_compute, METH_VARARGS | METH_KEYWORDS,
+        "asdasd"},
     {"lacosmic_edgedetect", (PyCFunction) lacosmic_edgedetect, METH_VARARGS | METH_KEYWORDS,
         lacosmic_edgedetect__doc__},
     {"bpm_interpolate", (PyCFunction) bpm_interpolate, METH_VARARGS | METH_KEYWORDS,
